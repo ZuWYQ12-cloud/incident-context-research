@@ -30,3 +30,18 @@
 
 \- Следующий шаг: подготовка WSL2 и проверка доступа к GPU.
 
+## 2026-09-15 — проверка Python и GPU
+
+- Подготовлена Ubuntu в WSL, лимит оперативной памяти — 8 ГБ.
+- Создано окружение .venv с Python 3.12.14 через uv.
+- Установлены PyTorch 2.10.0+cu128 и NumPy 2.5.3.
+- PyTorch обнаружил NVIDIA GeForce RTX 5060 Ti.
+- Умножение матриц и расчёт градиентов на cuda:0 прошли успешно.
+- Обмен массивами между NumPy и PyTorch проверен.
+- Дообучение языковой модели пока не выполнялось.
+
+Установка PyTorch:
+UV_HTTP_CONNECT_TIMEOUT=60 UV_HTTP_TIMEOUT=300 UV_CONCURRENT_DOWNLOADS=1 uv pip install torch==2.10.0 --index-url https://download.pytorch.org/whl/cu128
+
+Версии зависимостей сохранены в requirements-gpu.txt.
+Для восстановления GPU-окружения нужен источник сборок https://download.pytorch.org/whl/cu128.
