@@ -14,6 +14,7 @@ from transformers import (
 
 parser = argparse.ArgumentParser()
 parser.add_argument("prompt_file", type=Path)
+parser.add_argument("--seed", type=int, default=42)
 args = parser.parse_args()
 
 prompt = args.prompt_file.read_text(encoding="utf-8")
@@ -23,7 +24,7 @@ if not torch.cuda.is_available():
 
 model_id = "Qwen/Qwen3-1.7B"
 revision = "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e"
-seed = 42
+seed = args.seed
 generation = {
     "max_new_tokens": 768,
     "do_sample": True,
@@ -76,6 +77,7 @@ answer_tokens = output[0, inputs["input_ids"].shape[1]:]
 answer = tokenizer.decode(answer_tokens, skip_special_tokens=True)
 
 metadata = {
+    "prompt_file": args.prompt_file.as_posix(),
     "model": model_id,
     "revision": revision,
     "dtype": "bfloat16",
