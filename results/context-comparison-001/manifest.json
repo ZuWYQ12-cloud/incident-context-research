@@ -1,0 +1,100 @@
+{
+  "main_runs": [
+    {
+      "variant": "A",
+      "seed": 42,
+      "source": "results/raw/diagnosis-20261022T124337551675Z",
+      "saved_to": "A-seed-42",
+      "input_tokens": 505,
+      "output_tokens": 694,
+      "generation_seconds": 27.212,
+      "token_limit_reached": false
+    },
+    {
+      "variant": "A",
+      "seed": 43,
+      "source": "results/raw/diagnosis-20261022T130044163465Z",
+      "saved_to": "A-seed-43",
+      "input_tokens": 505,
+      "output_tokens": 589,
+      "generation_seconds": 22.306,
+      "token_limit_reached": false
+    },
+    {
+      "variant": "A",
+      "seed": 44,
+      "source": "results/raw/diagnosis-20261022T130835608952Z",
+      "saved_to": "A-seed-44",
+      "input_tokens": 505,
+      "output_tokens": 624,
+      "generation_seconds": 23.872,
+      "token_limit_reached": false
+    },
+    {
+      "variant": "B",
+      "seed": 42,
+      "source": "results/raw/diagnosis-20261022T125043398253Z",
+      "saved_to": "B-seed-42",
+      "input_tokens": 613,
+      "output_tokens": 667,
+      "generation_seconds": 26.687,
+      "token_limit_reached": false
+    },
+    {
+      "variant": "B",
+      "seed": 43,
+      "source": "results/raw/diagnosis-20261022T130111149933Z",
+      "saved_to": "B-seed-43",
+      "input_tokens": 613,
+      "output_tokens": 720,
+      "generation_seconds": 27.415,
+      "token_limit_reached": false
+    },
+    {
+      "variant": "B",
+      "seed": 44,
+      "source": "results/raw/diagnosis-20261022T130904230565Z",
+      "saved_to": "B-seed-44",
+      "input_tokens": 613,
+      "output_tokens": 567,
+      "generation_seconds": 21.018,
+      "token_limit_reached": false
+    },
+    {
+      "variant": "C",
+      "seed": 42,
+      "source": "results/raw/diagnosis-20261022T125949523147Z",
+      "saved_to": "C-seed-42",
+      "input_tokens": 613,
+      "output_tokens": 475,
+      "generation_seconds": 18.185,
+      "token_limit_reached": false
+    },
+    {
+      "variant": "C",
+      "seed": 43,
+      "source": "results/raw/diagnosis-20261022T130143290278Z",
+      "saved_to": "C-seed-43",
+      "input_tokens": 613,
+      "output_tokens": 745,
+      "generation_seconds": 27.387,
+      "token_limit_reached": false
+    },
+    {
+      "variant": "C",
+      "seed": 44,
+      "source": "results/raw/diagnosis-20261022T130929958776Z",
+      "saved_to": "C-seed-44",
+      "input_tokens": 613,
+      "output_tokens": 609,
+      "generation_seconds": 22.7,
+      "token_limit_reached": false
+    }
+  ],
+  "duplicate": {
+    "source": "results/raw/diagnosis-20261022T125620193278Z",
+    "saved_to": "duplicates/B-seed-42-repeat",
+    "included_in_main_analysis": false,
+    "reason": "Запрос, форматированный запрос и ответ побайтово совпадают с первым B/42. В metadata отличается только время генерации. Для основного анализа выбран первый запуск по времени."
+  }
+}

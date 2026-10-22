@@ -1,0 +1,22 @@
+{
+  "prompt_file": "experiments/context-comparison-001/prompt-B.txt",
+  "model": "Qwen/Qwen3-1.7B",
+  "revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+  "dtype": "bfloat16",
+  "enable_thinking": false,
+  "seed": 42,
+  "generation": {
+    "max_new_tokens": 768,
+    "do_sample": true,
+    "temperature": 0.7,
+    "top_p": 0.8,
+    "top_k": 20
+  },
+  "torch_version": "2.10.0+cu128",
+  "transformers_version": "4.57.6",
+  "gpu": "NVIDIA GeForce RTX 5060 Ti",
+  "input_tokens": 613,
+  "output_tokens": 667,
+  "generation_seconds": 26.687,
+  "token_limit_reached": false
+}
