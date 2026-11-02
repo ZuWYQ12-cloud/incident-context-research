@@ -1,0 +1,123 @@
+{
+  "experiment": "context-comparison-002",
+  "protocol": "experiments/004-auth-context-comparison-protocol.md",
+  "runs": [
+    {
+      "variant": "A",
+      "seed": 42,
+      "source": "results/raw/diagnosis-20261102T190940587546Z",
+      "directory": "A-seed-42",
+      "token_limit_reached": false,
+      "sha256": {
+        "prompt.txt": "3a0de03728b8433c773bdae0ae7ecada015917c98f18b0662db22cb500c253c3",
+        "formatted_prompt.txt": "335ee77bf761e986a46235fa5ae0f8f5a91095ce4435e8d247e95b14a9d2c8be",
+        "answer.txt": "5408411110ce06ee54048d587ab49841da79f6cfea83dbf94097b15f18507d9c",
+        "metadata.json": "241f7c39d6d1e0c50c8cf6e65b0d2e1b58e889f93b86059b83f979790e0263bd"
+      }
+    },
+    {
+      "variant": "A",
+      "seed": 43,
+      "source": "results/raw/diagnosis-20261102T191406028599Z",
+      "directory": "A-seed-43",
+      "token_limit_reached": false,
+      "sha256": {
+        "prompt.txt": "3a0de03728b8433c773bdae0ae7ecada015917c98f18b0662db22cb500c253c3",
+        "formatted_prompt.txt": "335ee77bf761e986a46235fa5ae0f8f5a91095ce4435e8d247e95b14a9d2c8be",
+        "answer.txt": "412948d01367ecada32aeced3903c5884001427327b9befd14fd6b652b6193d4",
+        "metadata.json": "a8f95dc2add8092b51cf49b2daf522edd4c6e4125a957031dce2f418d01042a4"
+      }
+    },
+    {
+      "variant": "A",
+      "seed": 44,
+      "source": "results/raw/diagnosis-20261102T191649025204Z",
+      "directory": "A-seed-44",
+      "token_limit_reached": false,
+      "sha256": {
+        "prompt.txt": "3a0de03728b8433c773bdae0ae7ecada015917c98f18b0662db22cb500c253c3",
+        "formatted_prompt.txt": "335ee77bf761e986a46235fa5ae0f8f5a91095ce4435e8d247e95b14a9d2c8be",
+        "answer.txt": "e027e815200d6fe0e3576aeb4243eb7c3dbc1ca9b9fd7551906350ce0374334f",
+        "metadata.json": "393163281909cc1b8807a89aa9be911805e94c2ef6c7739b2a6d3c4a2ceda3b9"
+      }
+    },
+    {
+      "variant": "B",
+      "seed": 42,
+      "source": "results/raw/diagnosis-20261102T191127787696Z",
+      "directory": "B-seed-42",
+      "token_limit_reached": true,
+      "sha256": {
+        "prompt.txt": "16b3a97a8fe1471360627a2f543f1ab8ce45d573ce00371ebf429377673d7026",
+        "formatted_prompt.txt": "8a316720368390ca2c312f6d783f2cb8d06759f10f7dd59601083ed2e70718ab",
+        "answer.txt": "f0bcbcfdcc77b35d6a09a0ea0cc84e913518a8a8bab4616902267a66f6910677",
+        "metadata.json": "25eec7068703a80c86592c6cc10f1eda8bf1b3dac564667f1ca31ba73560b2c6"
+      }
+    },
+    {
+      "variant": "B",
+      "seed": 43,
+      "source": "results/raw/diagnosis-20261102T191441805497Z",
+      "directory": "B-seed-43",
+      "token_limit_reached": false,
+      "sha256": {
+        "prompt.txt": "16b3a97a8fe1471360627a2f543f1ab8ce45d573ce00371ebf429377673d7026",
+        "formatted_prompt.txt": "8a316720368390ca2c312f6d783f2cb8d06759f10f7dd59601083ed2e70718ab",
+        "answer.txt": "b6547494a8593dfb68cf73e4957e91aff1c1833fdae077cc03376efb1cb2027b",
+        "metadata.json": "829b84796d2077593d56041cfded6a6e5682b5bf6a55037747f42e7e342febb1"
+      }
+    },
+    {
+      "variant": "B",
+      "seed": 44,
+      "source": "results/raw/diagnosis-20261102T191723037249Z",
+      "directory": "B-seed-44",
+      "token_limit_reached": false,
+      "sha256": {
+        "prompt.txt": "16b3a97a8fe1471360627a2f543f1ab8ce45d573ce00371ebf429377673d7026",
+        "formatted_prompt.txt": "8a316720368390ca2c312f6d783f2cb8d06759f10f7dd59601083ed2e70718ab",
+        "answer.txt": "d0c9a1591cd5d38258f233940b831e51b79b671700d3adaca30e997d46bec0ff",
+        "metadata.json": "c7a6b4b2ef120fc786b512c0285ff970a6e79c383e14bfc1f3a533f485101a30"
+      }
+    },
+    {
+      "variant": "C",
+      "seed": 42,
+      "source": "results/raw/diagnosis-20261102T191258919558Z",
+      "directory": "C-seed-42",
+      "token_limit_reached": false,
+      "sha256": {
+        "prompt.txt": "21a22ec44a6e85748c7df2ff6362ea6b68f789839223c964bc234e2a597f14cf",
+        "formatted_prompt.txt": "e1f924876d724ae1ded2fef5affa3c2f86fee3c2120663384b612d40dcd031c9",
+        "answer.txt": "890cea1ee3a1a55827d43256111ff0a10020c1d22c7d422b197c1176ca3d1766",
+        "metadata.json": "4d1ac259e768c27be7cf69ab24db67cfc13f1bdd38c0bdade3e57fdc53b9aefa"
+      }
+    },
+    {
+      "variant": "C",
+      "seed": 43,
+      "source": "results/raw/diagnosis-20261102T191517641319Z",
+      "directory": "C-seed-43",
+      "token_limit_reached": false,
+      "sha256": {
+        "prompt.txt": "21a22ec44a6e85748c7df2ff6362ea6b68f789839223c964bc234e2a597f14cf",
+        "formatted_prompt.txt": "e1f924876d724ae1ded2fef5affa3c2f86fee3c2120663384b612d40dcd031c9",
+        "answer.txt": "02257815a0e60e473bb41f99c8bb95d7f0693d201652993e2efa7c1ae2de53d4",
+        "metadata.json": "baa070be403d53ea1df79fc9e8ebd96ad8afc6943a828e95f728852068813a5c"
+      }
+    },
+    {
+      "variant": "C",
+      "seed": 44,
+      "source": "results/raw/diagnosis-20261102T191805695110Z",
+      "directory": "C-seed-44",
+      "token_limit_reached": false,
+      "sha256": {
+        "prompt.txt": "21a22ec44a6e85748c7df2ff6362ea6b68f789839223c964bc234e2a597f14cf",
+        "formatted_prompt.txt": "e1f924876d724ae1ded2fef5affa3c2f86fee3c2120663384b612d40dcd031c9",
+        "answer.txt": "45190688078d061825abd18511e3a7c3b2faa3b034e07d143bfa1dd28958eecd",
+        "metadata.json": "ef4b6b49e4ca118476ecc60a5ce6d56bee6e31a3efa2b4feac3fe56483cefd98"
+      }
+    }
+  ]
+}
