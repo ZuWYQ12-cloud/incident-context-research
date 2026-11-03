@@ -5,6 +5,8 @@ import hashlib
 import json
 from pathlib import Path
 
+from context_time import audit_observation
+
 
 def require(condition, message):
     if not condition:
@@ -41,6 +43,7 @@ def main():
     seen = set()
     checked_sources = {}
     records = []
+    time_audit = {}
 
     for observation in observations:
         identifier = observation["id"]
@@ -75,6 +78,11 @@ def main():
         # Only observation content enters the model's context.
         # Development labels and source paths stay outside it.
         records.append({"id": identifier, "text": text})
+        time_audit[identifier] = audit_observation(
+            observation.get("event_time"),
+            observation.get("collected_at"),
+            data["diagnosis_cutoff"],
+        )
 
     plain_body = "\n\n".join(record["text"] for record in records)
     structured_body = json.dumps(records, ensure_ascii=False, indent=2)
@@ -107,8 +115,14 @@ def main():
             "excerpts_found_in_sources": True,
             "observation_texts_equal": True,
         },
+        "time_audit_mode": "report_only",
+        "diagnosis_cutoff": data["diagnosis_cutoff"],
+        "time_audit": time_audit,
+        "all_observations_strict_eligible": all(
+            item["strict_eligible"] for item in time_audit.values()
+        ),
         "limitations": [
-            "No automatic timestamp extraction or cutoff validation.",
+            "Timestamp annotations are supplied in input; audit does not filter observations.",
             "No claim of equal token counts between representations.",
             "Input consists of prepared excerpts, not raw telemetry.",
         ],
@@ -132,7 +146,14 @@ def main():
     print("Создано:", args.output_dir)
     print("Наблюдения:", ", ".join(manifest["observation_order"]))
     print("Источники и сохранность текста проверены.")
-    print("Временная граница автоматически пока не проверяется.")
+    for identifier, result in time_audit.items():
+        print(
+            f"{identifier}: event={result['event_time_status']}, "
+            f"collection={result['collection_time_status']}, "
+            f"strict_eligible={result['strict_eligible']}"
+        )
+    print("Режим аудита: наблюдения не исключались.")
+
 
 
 if __name__ == "__main__":

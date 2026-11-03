@@ -1,0 +1,69 @@
+{
+  "schema_version": "0.1",
+  "incident_id": "incident-002",
+  "purpose": "development",
+  "input_file": "experiments/context-method-dev/incident-002-timed.json",
+  "input_sha256": "4993bff57db979cc9c486d810d572999b7af67a12e4f681803fd5926a41c35f2",
+  "builder_sha256": "c4f652351be351fc6ab12bd3e9d7442a3b6ff6a4a6cd70feaa17cfe5f29cdf70",
+  "observation_order": [
+    "E1",
+    "E2",
+    "E3",
+    "E4",
+    "E5"
+  ],
+  "checks": {
+    "source_hashes_match": true,
+    "excerpts_found_in_sources": true,
+    "observation_texts_equal": true
+  },
+  "time_audit_mode": "report_only",
+  "diagnosis_cutoff": "2026-11-02T18:33:03Z",
+  "time_audit": {
+    "E1": {
+      "event_time_status": "before",
+      "collection_time_status": "missing",
+      "strict_eligible": false,
+      "time_model": "truncated_timestamp_intervals",
+      "clock_synchronization_verified": false
+    },
+    "E2": {
+      "event_time_status": "before",
+      "collection_time_status": "missing",
+      "strict_eligible": false,
+      "time_model": "truncated_timestamp_intervals",
+      "clock_synchronization_verified": false
+    },
+    "E3": {
+      "event_time_status": "before",
+      "collection_time_status": "missing",
+      "strict_eligible": false,
+      "time_model": "truncated_timestamp_intervals",
+      "clock_synchronization_verified": false
+    },
+    "E4": {
+      "event_time_status": "before",
+      "collection_time_status": "missing",
+      "strict_eligible": false,
+      "time_model": "truncated_timestamp_intervals",
+      "clock_synchronization_verified": false
+    },
+    "E5": {
+      "event_time_status": "before",
+      "collection_time_status": "missing",
+      "strict_eligible": false,
+      "time_model": "truncated_timestamp_intervals",
+      "clock_synchronization_verified": false
+    }
+  },
+  "all_observations_strict_eligible": false,
+  "limitations": [
+    "Timestamp annotations are supplied in input; audit does not filter observations.",
+    "No claim of equal token counts between representations.",
+    "Input consists of prepared excerpts, not raw telemetry."
+  ],
+  "output_sha256": {
+    "prompt-plain.txt": "21a22ec44a6e85748c7df2ff6362ea6b68f789839223c964bc234e2a597f14cf",
+    "prompt-structured.txt": "b131eaec5a363b0744985458d53902f0b13c5eca25d9904710ae64d54950bdcf"
+  }
+}
