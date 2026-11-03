@@ -1,0 +1,29 @@
+{
+  "schema_version": "0.1",
+  "incident_id": "incident-002",
+  "purpose": "development",
+  "input_file": "experiments/context-method-dev/incident-002.json",
+  "input_sha256": "87065d117bb3e9906e853e93dd339d6f6c249ad24240496ddfc7fc71c4bfe5a7",
+  "builder_sha256": "fa3ec7e73eee1e2e6ec05c0e4eacbde62ebedac3f7fa5d6379397f96b9803d2d",
+  "observation_order": [
+    "E1",
+    "E2",
+    "E3",
+    "E4",
+    "E5"
+  ],
+  "checks": {
+    "source_hashes_match": true,
+    "excerpts_found_in_sources": true,
+    "observation_texts_equal": true
+  },
+  "limitations": [
+    "No automatic timestamp extraction or cutoff validation.",
+    "No claim of equal token counts between representations.",
+    "Input consists of prepared excerpts, not raw telemetry."
+  ],
+  "output_sha256": {
+    "prompt-plain.txt": "21a22ec44a6e85748c7df2ff6362ea6b68f789839223c964bc234e2a597f14cf",
+    "prompt-structured.txt": "b131eaec5a363b0744985458d53902f0b13c5eca25d9904710ae64d54950bdcf"
+  }
+}
