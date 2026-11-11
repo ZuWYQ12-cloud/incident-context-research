@@ -1,0 +1,72 @@
+{
+  "model": "Qwen/Qwen3-1.7B",
+  "revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+  "transformers_version": "4.57.6",
+  "enable_thinking": false,
+  "counting_method": "apply_chat_template(tokenize=False, add_generation_prompt=True), then tokenizer(formatted), matching run_diagnosis.py",
+  "records": [
+    {
+      "file": "experiments/context-comparison-002/prompt-C.txt",
+      "sha256": "21a22ec44a6e85748c7df2ff6362ea6b68f789839223c964bc234e2a597f14cf",
+      "input_tokens": 680,
+      "difference_from_baseline": 0,
+      "ratio_to_baseline": 1.0
+    },
+    {
+      "file": "experiments/context-method-dev/build-001/prompt-plain.txt",
+      "sha256": "21a22ec44a6e85748c7df2ff6362ea6b68f789839223c964bc234e2a597f14cf",
+      "input_tokens": 680,
+      "difference_from_baseline": 0,
+      "ratio_to_baseline": 1.0
+    },
+    {
+      "file": "experiments/context-method-dev/build-001/prompt-structured.txt",
+      "sha256": "b131eaec5a363b0744985458d53902f0b13c5eca25d9904710ae64d54950bdcf",
+      "input_tokens": 784,
+      "difference_from_baseline": 104,
+      "ratio_to_baseline": 1.153
+    },
+    {
+      "file": "experiments/context-method-dev/build-002/prompt-plain.txt",
+      "sha256": "21a22ec44a6e85748c7df2ff6362ea6b68f789839223c964bc234e2a597f14cf",
+      "input_tokens": 680,
+      "difference_from_baseline": 0,
+      "ratio_to_baseline": 1.0
+    },
+    {
+      "file": "experiments/context-method-dev/build-002/prompt-structured.txt",
+      "sha256": "b131eaec5a363b0744985458d53902f0b13c5eca25d9904710ae64d54950bdcf",
+      "input_tokens": 784,
+      "difference_from_baseline": 104,
+      "ratio_to_baseline": 1.153
+    },
+    {
+      "file": "experiments/context-method-dev/build-003/prompt-plain.txt",
+      "sha256": "f1f9e7115475cf28553c9e481ca2ac4d80f83aafa76663aeab96bfe7a37e4e80",
+      "input_tokens": 1036,
+      "difference_from_baseline": 356,
+      "ratio_to_baseline": 1.524
+    },
+    {
+      "file": "experiments/context-method-dev/build-003/prompt-structured.txt",
+      "sha256": "d028ce0aa376c4f738280628c2e571ee631c1ab777ee090347d3ce084bf7e5ac",
+      "input_tokens": 1140,
+      "difference_from_baseline": 460,
+      "ratio_to_baseline": 1.676
+    },
+    {
+      "file": "experiments/context-method-dev/build-004/prompt-plain.txt",
+      "sha256": "08971b1f0330b69314edf5c0229e648f8dbb47fd686bd1806caace727170873d",
+      "input_tokens": 1926,
+      "difference_from_baseline": 1246,
+      "ratio_to_baseline": 2.832
+    },
+    {
+      "file": "experiments/context-method-dev/build-004/prompt-structured.txt",
+      "sha256": "b07e5828e24f65163814f7c52418ea4a60f1a267389434c7851eea2cea2c886e",
+      "input_tokens": 2030,
+      "difference_from_baseline": 1350,
+      "ratio_to_baseline": 2.985
+    }
+  ]
+}
