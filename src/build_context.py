@@ -122,9 +122,49 @@ def main():
             + "\n\n"
         )
 
+    temporal_context = None
+    time_section = ""
+
+    if data["schema_version"] == "0.2":
+        temporal_context = {
+            "diagnosis_cutoff": data["diagnosis_cutoff"],
+            "boundary_rule": "exclusive",
+            "mode": "audit_without_filtering",
+            "timestamp_model": "truncated_timestamp_intervals",
+            "clock_synchronization_verified": False,
+            "interpretation": [
+                "before означает до границы в принятой модели меток.",
+                "missing означает отсутствие временной метки.",
+                "invalid означает некорректную временную метку.",
+                "overlaps означает пересечение интервала метки с границей.",
+                "at_or_after означает метку на границе или после неё.",
+                "strict_eligible требует времени события и получения до границы.",
+                "strict_eligible=false не обязательно означает позднее событие.",
+                "Разрешение метки не гарантирует точность часов.",
+                "Наблюдения в режиме аудита не исключаются.",
+            ],
+            "observations": [
+                {
+                    "id": observation["id"],
+                    "event_time_original": observation.get(
+                        "event_time_original"
+                    ),
+                    "event_time": observation.get("event_time"),
+                    "collected_at": observation.get("collected_at"),
+                    **time_audit[observation["id"]],
+                }
+                for observation in observations
+            ],
+        }
+        time_section = (
+            "Время и ограничения наблюдений:\n\n"
+            + json.dumps(temporal_context, ensure_ascii=False, indent=2)
+            + "\n\n"
+        )
+
     def make_prompt(body):
         return (
-            header + source_section
+            header + source_section + time_section
             + "Наблюдения:\n\n" + body + "\n\n" + questions
         )
 
@@ -146,6 +186,8 @@ def main():
         },
         "source_audit": source_audit,
         "source_context": source_context,
+        "temporal_context": temporal_context,
+        "time_section_equal_between_variants": True,
         "source_section_equal_between_variants": True,
         "observation_order": [record["id"] for record in records],
         "checks": {
