@@ -1,0 +1,30 @@
+{
+  "purpose": "annotation_calibration",
+  "selection": "Two deliberately selected contrasting development answers",
+  "counts": {
+    "with_unsupported_cause": 1,
+    "without_detected_cause_error": 1
+  },
+  "records": [
+    {
+      "annotation_file": "results/annotation-calibration-001/B-seed-42.json",
+      "annotation_sha256": "78caf8b2d1ce439f00ed794eadf6621883a92cfcd1193e02c0d94623f2281c93",
+      "answer_id": "context-comparison-002/B-seed-42",
+      "has_unsupported_causal_claim": true,
+      "review_status": "provisional_requires_researcher_review"
+    },
+    {
+      "annotation_file": "results/annotation-calibration-001/B-seed-43.json",
+      "annotation_sha256": "4bcab37abc8c4203f05b0e89c949f344bcccc38ca5bc885a73f658749df42c73",
+      "answer_id": "context-comparison-002/B-seed-43",
+      "has_unsupported_causal_claim": false,
+      "review_status": "provisional_requires_researcher_review"
+    }
+  ],
+  "limitations": [
+    "Labels are provisional and AI-assisted.",
+    "Checks verify file integrity and annotation consistency, not semantic truth.",
+    "A negative decision requires a full-answer review by the annotator.",
+    "These selected examples do not estimate the model error rate."
+  ]
+}

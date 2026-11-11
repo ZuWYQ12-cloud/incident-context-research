@@ -1,0 +1,57 @@
+{
+  "schema_version": "0.1",
+  "answer_id": "context-comparison-002/B-seed-42",
+  "purpose": "annotation_calibration",
+  "review_status": "provisional_requires_researcher_review",
+  "annotation_origin": "AI-assisted; not independent",
+  "rules_file": "research/causal-claim-annotation.md",
+  "rules_sha256": "720a1890fe76093b1bb332749233e98f103d131825165217f60e1fe56d8eb029",
+  "answer_file": "results/context-comparison-002/B-seed-42/answer.txt",
+  "answer_sha256": "f0bcbcfdcc77b35d6a09a0ea0cc84e913518a8a8bab4616902267a66f6910677",
+  "prompt_file": "results/context-comparison-002/B-seed-42/prompt.txt",
+  "prompt_sha256": "16b3a97a8fe1471360627a2f543f1ab8ce45d573ce00371ebf429377673d7026",
+  "scope": "Causal explanation in section 3; not an exhaustive claim inventory.",
+  "claims": [
+    {
+      "id": "C1",
+      "quote": "При запросе `/tasks` сервис попытался подключиться к PostgreSQL, но не смог. Это связано с ошибкой аутентификации пользователя `stand_admin`.",
+      "claim": "Отказ подключения /tasks связан с аутентификацией stand_admin.",
+      "label": "SUPPORTED",
+      "evidence_ids": [
+        "E5"
+      ],
+      "rationale": "E5 содержит ошибку парольной аутентификации при подключении из list_tasks через connect_db."
+    },
+    {
+      "id": "C2",
+      "quote": "Это указывает на проблему с настройками `pg_hba.conf` в PostgreSQL",
+      "claim": "Отказ вызван проблемой настроек pg_hba.conf.",
+      "label": "UNSUPPORTED",
+      "evidence_ids": [
+        "E3",
+        "E4",
+        "E5"
+      ],
+      "rationale": "Наблюдения показывают отказ и применённое правило, но не устанавливают ошибочность настроек."
+    },
+    {
+      "id": "C3",
+      "quote": "где используется шифрование аутентификации (`scram-sha-256`), что не совместимо с текущим аутентификацией пользователя.",
+      "claim": "Метод scram-sha-256 несовместим с аутентификацией пользователя.",
+      "label": "UNSUPPORTED",
+      "evidence_ids": [
+        "E3",
+        "E4"
+      ],
+      "rationale": "Указание применённого метода не доказывает несовместимость. Терминология исходной цитаты сохранена без исправлений."
+    }
+  ],
+  "has_unsupported_causal_claim": true,
+  "notes": [
+    "C2 и C3 относятся к одной цепочке объяснения.",
+    "Цитаты проверены программно; обоснованность меток требует человека.",
+    "Ответ достиг лимита; оценивается только сохранённый текст.",
+    "Наличие ошибки установлено даже при неполном перечне утверждений.",
+    "Отсутствие ошибки по частичной разметке устанавливать нельзя."
+  ]
+}
