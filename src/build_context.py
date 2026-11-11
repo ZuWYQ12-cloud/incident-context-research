@@ -156,9 +156,46 @@ def main():
                 for observation in observations
             ],
         }
+        # Keep the full audit in the manifest; compact only its presentation.
+        temporal_display = {
+            key: value
+            for key, value in temporal_context.items()
+            if key != "observations"
+        }
+        defaults = {
+            "time_model": "truncated_timestamp_intervals",
+            "clock_synchronization_verified": False,
+        }
+        temporal_display["observation_defaults"] = defaults
+        temporal_display["observation_defaults_scope"] = (
+            "Defaults apply to every observation; explicit fields override them."
+        )
+        temporal_display["observations"] = []
+
+        for record in temporal_context["observations"]:
+            compact = dict(record)
+            for key, value in defaults.items():
+                require(
+                    compact[key] == value,
+                    "Cannot compact differing temporal properties",
+                )
+                del compact[key]
+            temporal_display["observations"].append(compact)
+
+        reconstructed = [
+            {**defaults, **record}
+            for record in temporal_display["observations"]
+        ]
+        require(
+            reconstructed == temporal_context["observations"],
+            "Temporal compaction lost data",
+        )
+
         time_section = (
             "Время и ограничения наблюдений:\n\n"
-            + json.dumps(temporal_context, ensure_ascii=False, indent=2)
+            + json.dumps(
+                temporal_display, ensure_ascii=False, separators=(",", ":")
+            )
             + "\n\n"
         )
 
@@ -187,6 +224,7 @@ def main():
         "source_audit": source_audit,
         "source_context": source_context,
         "temporal_context": temporal_context,
+        "temporal_presentation": "shared_defaults_compact_json",
         "time_section_equal_between_variants": True,
         "source_section_equal_between_variants": True,
         "observation_order": [record["id"] for record in records],
