@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 
 from context_time import audit_observation
+from context_sources import validate_sources
 
 
 def require(condition, message):
@@ -26,7 +27,7 @@ def main():
     input_bytes = args.input_file.read_bytes()
     data = json.loads(input_bytes.decode("utf-8"))
 
-    require(data["schema_version"] == "0.1", "Unsupported schema version")
+    require(data["schema_version"] in ("0.1", "0.2"), "Unsupported schema version")
     require(data["purpose"] == "development", "Expected development data")
 
     header = data["header_text"]
@@ -39,6 +40,25 @@ def main():
         isinstance(observations, list) and observations,
         "observations must be a nonempty list",
     )
+
+    source_audit = None
+    source_context = []
+
+    if data["schema_version"] == "0.2":
+        source_audit = validate_sources(data)
+        for source in data["sources"]:
+            public = {
+                key: source[key]
+                for key in (
+                    "id", "kind", "component", "availability",
+                    "representation", "completeness",
+                    "coverage_interval", "note",
+                )
+            }
+            public["observation_ids"] = source_audit[
+                source["id"]
+            ]["observation_ids"]
+            source_context.append(public)
 
     seen = set()
     checked_sources = {}
@@ -94,8 +114,19 @@ def main():
         "Observation texts differ",
     )
 
+    source_section = ""
+    if source_context:
+        source_section = (
+            "Источники и покрытие данных:\n\n"
+            + json.dumps(source_context, ensure_ascii=False, indent=2)
+            + "\n\n"
+        )
+
     def make_prompt(body):
-        return header + "Наблюдения:\n\n" + body + "\n\n" + questions
+        return (
+            header + source_section
+            + "Наблюдения:\n\n" + body + "\n\n" + questions
+        )
 
     outputs = {
         "prompt-plain.txt": make_prompt(plain_body),
@@ -103,12 +134,19 @@ def main():
     }
 
     manifest = {
-        "schema_version": "0.1",
+        "schema_version": data["schema_version"],
         "incident_id": data["incident_id"],
         "purpose": data["purpose"],
         "input_file": args.input_file.as_posix(),
         "input_sha256": sha256(input_bytes),
         "builder_sha256": sha256(Path(__file__).read_bytes()),
+        "module_sha256": {
+            name: sha256(Path(__file__).with_name(name).read_bytes())
+            for name in ("context_time.py", "context_sources.py")
+        },
+        "source_audit": source_audit,
+        "source_context": source_context,
+        "source_section_equal_between_variants": True,
         "observation_order": [record["id"] for record in records],
         "checks": {
             "source_hashes_match": True,
@@ -153,6 +191,10 @@ def main():
             f"strict_eligible={result['strict_eligible']}"
         )
     print("Режим аудита: наблюдения не исключались.")
+    if source_audit is not None:
+        print("Проверено источников:", len(source_audit))
+        print("Описание источников включено одинаково в оба запроса.")
+
 
 
 
