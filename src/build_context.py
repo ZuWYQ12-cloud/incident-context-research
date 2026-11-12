@@ -22,6 +22,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("input_file", type=Path)
     parser.add_argument("--output-dir", type=Path, required=True)
+    parser.add_argument("--include-diagnostic-facts", action="store_true")
     args = parser.parse_args()
 
     input_bytes = args.input_file.read_bytes()
@@ -199,10 +200,20 @@ def main():
             + "\n\n"
         )
 
+    diagnostic_context = None
+    diagnostic_section = ""
+    if args.include_diagnostic_facts:
+        from extract_diagnostic_facts import extract, render
+
+        # Only validated observation texts enter extraction. Operator metadata
+        # and the known incident scenario must not influence these rules.
+        diagnostic_context = extract({"observations": records})
+        diagnostic_section = render(diagnostic_context) + "\n"
+
     def make_prompt(body):
         return (
             header + source_section + time_section
-            + "Наблюдения:\n\n" + body + "\n\n" + questions
+            + "Наблюдения:\n\n" + body + "\n\n" + diagnostic_section + questions
         )
 
     outputs = {
@@ -250,6 +261,29 @@ def main():
         },
     }
 
+    manifest["diagnostic_facts_enabled"] = args.include_diagnostic_facts
+    if diagnostic_context is not None:
+        manifest["module_sha256"]["extract_diagnostic_facts.py"] = sha256(
+            Path(__file__).with_name("extract_diagnostic_facts.py").read_bytes()
+        )
+        manifest["diagnostic_context"] = diagnostic_context
+        manifest["diagnostic_section_equal_between_variants"] = True
+        manifest["diagnostic_section_sha256"] = sha256(
+            diagnostic_section.encode("utf-8")
+        )
+        manifest["limitations"].append(
+            "Diagnostic guidance adds external rule-based knowledge, not raw evidence; "
+            "it is not a formatting-only change or a root-cause verification."
+        )
+        outputs["diagnostic-facts.json"] = json.dumps(
+            diagnostic_context, ensure_ascii=False, indent=2
+        ) + "\n"
+        outputs["diagnostic-context.txt"] = diagnostic_section
+        manifest["output_sha256"] = {
+            name: sha256(value.encode("utf-8"))
+            for name, value in outputs.items()
+        }
+
     # Refuse to overwrite an existing build.
     args.output_dir.mkdir(parents=True, exist_ok=False)
 
@@ -264,6 +298,9 @@ def main():
     print("Создано:", args.output_dir)
     print("Наблюдения:", ", ".join(manifest["observation_order"]))
     print("Источники и сохранность текста проверены.")
+    if diagnostic_context is not None:
+        print("Диагностических сигнатур:", len(diagnostic_context["facts"]))
+        print("Диагностический блок одинаков в обоих запросах.")
     for identifier, result in time_audit.items():
         print(
             f"{identifier}: event={result['event_time_status']}, "

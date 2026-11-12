@@ -1,0 +1,272 @@
+{
+  "schema_version": "0.2",
+  "incident_id": "incident-002",
+  "purpose": "development",
+  "input_file": "experiments/context-method-dev/incident-002-sources.json",
+  "input_sha256": "45e5600dbb2d224a8bdc1899b53453631022aa336985ff92ee405f0150f28ade",
+  "builder_sha256": "8c0d9370b13faae64835e7eabee0c703aceedf2273be10102f25fbf38d31fae2",
+  "module_sha256": {
+    "context_time.py": "a255be99767b21dc9cdc10d95427e11a236200b4e2bfb91b4ac1430aea77d3e7",
+    "context_sources.py": "70cd1668e47df6a680d2c2729797c515737c90bfbaf8dd951e5b4c7ca57814f3",
+    "extract_diagnostic_facts.py": "94b07027fda5adcfaddfaa0e4a574c2f20e72d5465e909f928e061d20836e9ee"
+  },
+  "source_audit": {
+    "http_checks": {
+      "availability": "provided",
+      "completeness": "partial",
+      "observation_ids": [
+        "E1",
+        "E2"
+      ]
+    },
+    "postgres_log": {
+      "availability": "provided",
+      "completeness": "unknown",
+      "observation_ids": [
+        "E3",
+        "E4"
+      ]
+    },
+    "api_log": {
+      "availability": "provided",
+      "completeness": "unknown",
+      "observation_ids": [
+        "E5"
+      ]
+    }
+  },
+  "source_context": [
+    {
+      "id": "http_checks",
+      "kind": "http_probe",
+      "component": "api",
+      "availability": "provided",
+      "representation": "discrete_checks",
+      "completeness": "partial",
+      "coverage_interval": null,
+      "note": "Предоставлены отдельные HTTP-проверки. Непрерывное наблюдение между замерами отсутствует.",
+      "observation_ids": [
+        "E1",
+        "E2"
+      ]
+    },
+    {
+      "id": "postgres_log",
+      "kind": "application_log",
+      "component": "db",
+      "availability": "provided",
+      "representation": "selected_excerpts",
+      "completeness": "unknown",
+      "coverage_interval": null,
+      "note": "Предоставлены выбранные сообщения PostgreSQL. Полнота исходного журнала и выгрузки не подтверждена.",
+      "observation_ids": [
+        "E3",
+        "E4"
+      ]
+    },
+    {
+      "id": "api_log",
+      "kind": "application_log",
+      "component": "api",
+      "availability": "provided",
+      "representation": "selected_excerpts",
+      "completeness": "unknown",
+      "coverage_interval": null,
+      "note": "Предоставлена выдержка с ошибкой API. Полнота исходного журнала и выгрузки не подтверждена.",
+      "observation_ids": [
+        "E5"
+      ]
+    }
+  ],
+  "temporal_context": {
+    "diagnosis_cutoff": "2026-11-02T18:33:03Z",
+    "boundary_rule": "exclusive",
+    "mode": "audit_without_filtering",
+    "timestamp_model": "truncated_timestamp_intervals",
+    "clock_synchronization_verified": false,
+    "interpretation": [
+      "before означает до границы в принятой модели меток.",
+      "missing означает отсутствие временной метки.",
+      "invalid означает некорректную временную метку.",
+      "overlaps означает пересечение интервала метки с границей.",
+      "at_or_after означает метку на границе или после неё.",
+      "strict_eligible требует времени события и получения до границы.",
+      "strict_eligible=false не обязательно означает позднее событие.",
+      "Разрешение метки не гарантирует точность часов.",
+      "Наблюдения в режиме аудита не исключаются."
+    ],
+    "observations": [
+      {
+        "id": "E1",
+        "event_time_original": "2026-11-02T18:28:52Z",
+        "event_time": "2026-11-02T18:28:52Z",
+        "collected_at": null,
+        "event_time_status": "before",
+        "collection_time_status": "missing",
+        "strict_eligible": false,
+        "time_model": "truncated_timestamp_intervals",
+        "clock_synchronization_verified": false
+      },
+      {
+        "id": "E2",
+        "event_time_original": "2026-11-02T18:32:58Z",
+        "event_time": "2026-11-02T18:32:58Z",
+        "collected_at": null,
+        "event_time_status": "before",
+        "collection_time_status": "missing",
+        "strict_eligible": false,
+        "time_model": "truncated_timestamp_intervals",
+        "clock_synchronization_verified": false
+      },
+      {
+        "id": "E3",
+        "event_time_original": "2026-11-02 18:32:58.878 UTC",
+        "event_time": "2026-11-02T18:32:58.878Z",
+        "collected_at": null,
+        "event_time_status": "before",
+        "collection_time_status": "missing",
+        "strict_eligible": false,
+        "time_model": "truncated_timestamp_intervals",
+        "clock_synchronization_verified": false
+      },
+      {
+        "id": "E4",
+        "event_time_original": "2026-11-02 18:32:58.895 UTC",
+        "event_time": "2026-11-02T18:32:58.895Z",
+        "collected_at": null,
+        "event_time_status": "before",
+        "collection_time_status": "missing",
+        "strict_eligible": false,
+        "time_model": "truncated_timestamp_intervals",
+        "clock_synchronization_verified": false
+      },
+      {
+        "id": "E5",
+        "event_time_original": "2026-11-02T18:32:58.910617163Z",
+        "event_time": "2026-11-02T18:32:58.910617163Z",
+        "collected_at": null,
+        "event_time_status": "before",
+        "collection_time_status": "missing",
+        "strict_eligible": false,
+        "time_model": "truncated_timestamp_intervals",
+        "clock_synchronization_verified": false
+      }
+    ]
+  },
+  "temporal_presentation": "shared_defaults_compact_json",
+  "time_section_equal_between_variants": true,
+  "source_section_equal_between_variants": true,
+  "observation_order": [
+    "E1",
+    "E2",
+    "E3",
+    "E4",
+    "E5"
+  ],
+  "checks": {
+    "source_hashes_match": true,
+    "excerpts_found_in_sources": true,
+    "observation_texts_equal": true
+  },
+  "time_audit_mode": "report_only",
+  "diagnosis_cutoff": "2026-11-02T18:33:03Z",
+  "time_audit": {
+    "E1": {
+      "event_time_status": "before",
+      "collection_time_status": "missing",
+      "strict_eligible": false,
+      "time_model": "truncated_timestamp_intervals",
+      "clock_synchronization_verified": false
+    },
+    "E2": {
+      "event_time_status": "before",
+      "collection_time_status": "missing",
+      "strict_eligible": false,
+      "time_model": "truncated_timestamp_intervals",
+      "clock_synchronization_verified": false
+    },
+    "E3": {
+      "event_time_status": "before",
+      "collection_time_status": "missing",
+      "strict_eligible": false,
+      "time_model": "truncated_timestamp_intervals",
+      "clock_synchronization_verified": false
+    },
+    "E4": {
+      "event_time_status": "before",
+      "collection_time_status": "missing",
+      "strict_eligible": false,
+      "time_model": "truncated_timestamp_intervals",
+      "clock_synchronization_verified": false
+    },
+    "E5": {
+      "event_time_status": "before",
+      "collection_time_status": "missing",
+      "strict_eligible": false,
+      "time_model": "truncated_timestamp_intervals",
+      "clock_synchronization_verified": false
+    }
+  },
+  "all_observations_strict_eligible": false,
+  "limitations": [
+    "Timestamp annotations are supplied in input; audit does not filter observations.",
+    "No claim of equal token counts between representations.",
+    "Input consists of prepared excerpts, not raw telemetry.",
+    "Diagnostic guidance adds external rule-based knowledge, not raw evidence; it is not a formatting-only change or a root-cause verification."
+  ],
+  "output_sha256": {
+    "prompt-plain.txt": "176e9d37c4fdd0b7a65345f2536c58e8d6c2859bc25bb8c8f50a820104d482f4",
+    "prompt-structured.txt": "d0724f09455161e3b548e13ab75ddc4c485a1f4960b9ad3770422088f71aedba",
+    "diagnostic-facts.json": "7a78c3c525046ee7b660e268faeb6b7a1d602240106ed320c7c27506372f9f1f",
+    "diagnostic-context.txt": "27ad96203cd484fa46ea01c00d90865973f4e7614a502a6628ab79255ebd8892"
+  },
+  "diagnostic_facts_enabled": true,
+  "diagnostic_context": {
+    "schema_version": "0.1",
+    "purpose": "development_signature_extraction",
+    "facts": [
+      {
+        "signature": "password_authentication_failed",
+        "meaning": "Зарегистрирован отказ парольной аутентификации.",
+        "evidence": [
+          {
+            "observation_id": "E3",
+            "quote": "FATAL: password authentication failed for user \"stand_admin\"",
+            "start_char": 53,
+            "end_char": 113
+          },
+          {
+            "observation_id": "E4",
+            "quote": "FATAL: password authentication failed for user \"stand_admin\"",
+            "start_char": 53,
+            "end_char": 113
+          },
+          {
+            "observation_id": "E5",
+            "quote": "psycopg.OperationalError: connection failed: connection to server at \"172.18.0.2\", port 5432 failed: FATAL: password authentication failed for user \"stand_admin\"",
+            "start_char": 94,
+            "end_char": 255
+          }
+        ],
+        "not_established": [
+          "Где возникло несоответствие учётных данных.",
+          "Ошибочность pg_hba.conf или изменение пароля конкретным лицом."
+        ],
+        "next_check": "Сверить параметры подключения API с ожидаемыми учётными данными без вывода пароля в журнал."
+      }
+    ],
+    "observations_without_supported_signature": [
+      "E1",
+      "E2"
+    ],
+    "limitations": [
+      "Совпадение строки с сигнатурой не доказывает первопричину или подлинность журнала.",
+      "Поддерживаются четыре явные сигнатуры; отсутствие совпадения не означает отсутствия ошибки.",
+      "Разные сигнатуры сохраняются вместе, а не сводятся к одной причине.",
+      "Временная допустимость и связи разных попыток подключения здесь не проверяются.",
+      "Пояснения и рекомендации являются внешними правилами, а не исходными наблюдениями."
+    ]
+  },
+  "diagnostic_section_equal_between_variants": true,
+  "diagnostic_section_sha256": "27ad96203cd484fa46ea01c00d90865973f4e7614a502a6628ab79255ebd8892"
+}
