@@ -42,10 +42,10 @@ class PipelineFailureTests(unittest.TestCase):
         self.input.write_text(json.dumps(data, ensure_ascii=False), encoding='utf-8')
         self.output = self.work / 'output'
 
-    def run_pipeline(self):
+    def run_pipeline(self, extra=None):
         return subprocess.run(
             [sys.executable, str(self.src / 'run_pipeline.py'), str(self.input),
-             '--output-dir', str(self.output), '--mode', 'rules-only'],
+             '--output-dir', str(self.output), '--mode', 'rules-only'] + (extra or []),
             cwd=self.work, capture_output=True, text=True, encoding='utf-8',
             env={**os.environ, 'PYTHONIOENCODING': 'utf-8'}, timeout=30,
         )
@@ -104,6 +104,43 @@ def extract(document):
         self.assertTrue((self.output / 'context/build-manifest.json').exists())
         self.assertFalse((self.output / 'report.json').exists())
         self.assertFalse((self.output / 'report.md').exists())
+
+    def test_context_switch_changes_only_rule_section(self):
+        # A test double records the exact prompt; no real model or GPU is used.
+        (self.src / 'run_diagnosis.py').write_text('''import argparse, json
+from pathlib import Path
+p = argparse.ArgumentParser()
+p.add_argument('prompt', type=Path)
+p.add_argument('--output-dir', type=Path)
+p.add_argument('--seed', type=int)
+p.add_argument('--max-new-tokens', type=int)
+a = p.parse_args()
+a.output_dir.mkdir()
+(a.output_dir / 'prompt.txt').write_bytes(a.prompt.read_bytes())
+(a.output_dir / 'answer.txt').write_text('TEST DOUBLE: not an inference result', encoding='utf-8')
+(a.output_dir / 'metadata.json').write_text(json.dumps({
+    'seed': a.seed, 'generation': {'max_new_tokens': a.max_new_tokens},
+    'test_double': True}), encoding='utf-8')
+''', encoding='utf-8')
+        results = {}
+        for mode in ('baseline', 'with-rules'):
+            self.output = self.work / mode
+            result = self.run_pipeline(['--mode', 'with-model', '--context-mode', mode])
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(self.state()['context_mode'], mode)
+            results[mode] = (self.output / 'model/prompt.txt').read_bytes()
+            report = json.loads((self.output / 'report.json').read_text(encoding='utf-8'))
+            self.assertEqual(report['verification']['evidence_quotes_checked'], 1)
+            self.assertEqual(report['provenance']['diagnostic_rules_sent_to_model'], mode == 'with-rules')
+        section = (self.work / 'with-rules/context/diagnostic-context.txt').read_bytes()
+        self.assertEqual(results['with-rules'].count(section), 1)
+        self.assertNotIn(section, results['baseline'])
+        self.assertEqual(results['with-rules'].replace(section, b'', 1), results['baseline'])
+
+    def test_baseline_rejected_without_model(self):
+        result = self.run_pipeline(['--context-mode', 'baseline'])
+        self.assertNotEqual(result.returncode, 0)
+        self.assertFalse(self.output.exists())
 
 
 if __name__ == '__main__':

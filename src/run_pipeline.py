@@ -29,11 +29,14 @@ def main():
     parser.add_argument('input_file', type=Path)
     parser.add_argument('--output-dir', type=Path, required=True)
     parser.add_argument('--mode', choices=('rules-only', 'with-model'), default='rules-only')
+    parser.add_argument('--context-mode', choices=('baseline', 'with-rules'), default='with-rules')
     parser.add_argument('--seed', type=int, default=42)
     parser.add_argument('--max-new-tokens', type=int, default=1536)
     args = parser.parse_args()
     if args.max_new_tokens <= 0:
         parser.error('--max-new-tokens must be positive')
+    if args.mode == 'rules-only' and args.context_mode == 'baseline':
+        parser.error('baseline is only meaningful with --mode with-model')
     source = args.input_file.resolve()
     data = json.loads(source.read_text(encoding='utf-8'))
     scripts = Path(__file__).resolve().parent
@@ -47,7 +50,8 @@ def main():
     out.mkdir(parents=True, exist_ok=False)
     (out / 'input-snapshot.json').write_bytes(source.read_bytes())
     state = {'schema_version': '0.1', 'status': 'running', 'stage': 'context',
-             'mode': args.mode, 'started_at': datetime.now(timezone.utc).isoformat(),
+             'mode': args.mode, 'context_mode': args.context_mode,
+             'started_at': datetime.now(timezone.utc).isoformat(),
              'input_file': str(source), 'input_sha256': input_hash,
              'module_sha256': hashes, 'python': sys.executable,
              'seed': args.seed if args.mode == 'with-model' else None,
@@ -69,14 +73,23 @@ def main():
     try:
         save(status_file, state)
         context = out / 'context'
-        run('context', [sys.executable, str(scripts / 'build_context.py'), str(source),
-                        '--output-dir', str(context), '--include-diagnostic-facts'])
+        command = [sys.executable, str(scripts / 'build_context.py'), str(source),
+                   '--output-dir', str(context)]
+        if args.context_mode == 'with-rules':
+            command.append('--include-diagnostic-facts')
+        run('context', command)
         prompt = context / 'prompt-plain.txt'
         facts_path = context / 'diagnostic-facts.json'
         manifest = json.loads((context / 'build-manifest.json').read_text(encoding='utf-8'))
         for name, expected in manifest['output_sha256'].items():
             if digest(context / name) != expected:
                 raise ValueError(f'Context output hash mismatch: {name}')
+        if args.context_mode == 'baseline':
+            # Facts are for the report only; never appended to the model prompt.
+            from extract_diagnostic_facts import extract
+            facts_path = out / 'report-only-facts.json'
+            save(facts_path, extract(data))
+        state['prompt_sha256'] = digest(prompt)
         answer = None
         if args.mode == 'with-model':
             model_out = out / 'model'
@@ -98,6 +111,9 @@ def main():
         report['provenance'] = {
             'input_sha256': input_hash, 'facts_sha256': digest(facts_path),
             'prompt_sha256': digest(prompt), 'module_sha256': hashes, 'mode': args.mode,
+            'context_mode': args.context_mode,
+            'report_contains_rule_facts': True,
+            'diagnostic_rules_sent_to_model': args.mode == 'with-model' and args.context_mode == 'with-rules',
         }
         if answer is not None:
             report['provenance']['answer_sha256'] = digest(out / 'model/answer.txt')
