@@ -1,0 +1,4 @@
+services:
+  api:
+    environment:
+      DATABASE_URL: postgresql://diag_reader_003:local_diag_003_password@db:5432/production
