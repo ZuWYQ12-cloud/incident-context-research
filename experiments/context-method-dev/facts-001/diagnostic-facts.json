@@ -1,0 +1,49 @@
+{
+  "schema_version": "0.1",
+  "purpose": "development_signature_extraction",
+  "facts": [
+    {
+      "signature": "password_authentication_failed",
+      "meaning": "Зарегистрирован отказ парольной аутентификации.",
+      "evidence": [
+        {
+          "observation_id": "E3",
+          "quote": "FATAL: password authentication failed for user \"stand_admin\"",
+          "start_char": 53,
+          "end_char": 113
+        },
+        {
+          "observation_id": "E4",
+          "quote": "FATAL: password authentication failed for user \"stand_admin\"",
+          "start_char": 53,
+          "end_char": 113
+        },
+        {
+          "observation_id": "E5",
+          "quote": "psycopg.OperationalError: connection failed: connection to server at \"172.18.0.2\", port 5432 failed: FATAL: password authentication failed for user \"stand_admin\"",
+          "start_char": 94,
+          "end_char": 255
+        }
+      ],
+      "not_established": [
+        "Где возникло несоответствие учётных данных.",
+        "Ошибочность pg_hba.conf или изменение пароля конкретным лицом."
+      ],
+      "next_check": "Сверить параметры подключения API с ожидаемыми учётными данными без вывода пароля в журнал."
+    }
+  ],
+  "observations_without_supported_signature": [
+    "E1",
+    "E2"
+  ],
+  "limitations": [
+    "Совпадение строки с сигнатурой не доказывает первопричину или подлинность журнала.",
+    "Поддерживаются четыре явные сигнатуры; отсутствие совпадения не означает отсутствия ошибки.",
+    "Разные сигнатуры сохраняются вместе, а не сводятся к одной причине.",
+    "Временная допустимость и связи разных попыток подключения здесь не проверяются.",
+    "Пояснения и рекомендации являются внешними правилами, а не исходными наблюдениями."
+  ],
+  "input_sha256": "45e5600dbb2d224a8bdc1899b53453631022aa336985ff92ee405f0150f28ade",
+  "extractor_sha256": "94b07027fda5adcfaddfaa0e4a574c2f20e72d5465e909f928e061d20836e9ee",
+  "input_file": "experiments/context-method-dev/incident-002-sources.json"
+}

@@ -15,7 +15,11 @@ from transformers import (
 parser = argparse.ArgumentParser()
 parser.add_argument("prompt_file", type=Path)
 parser.add_argument("--seed", type=int, default=42)
+parser.add_argument("--output-dir", type=Path)
+parser.add_argument("--max-new-tokens", type=int, default=768)
 args = parser.parse_args()
+if args.max_new_tokens <= 0:
+    parser.error("--max-new-tokens должен быть положительным")
 
 prompt = args.prompt_file.read_text(encoding="utf-8")
 
@@ -26,7 +30,7 @@ model_id = "Qwen/Qwen3-1.7B"
 revision = "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e"
 seed = args.seed
 generation = {
-    "max_new_tokens": 768,
+    "max_new_tokens": args.max_new_tokens,
     "do_sample": True,
     "temperature": 0.7,
     "top_p": 0.8,
@@ -34,7 +38,7 @@ generation = {
 }
 
 run_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
-output_dir = Path("results/raw") / f"diagnosis-{run_id}"
+output_dir = args.output_dir if args.output_dir is not None else Path("results/raw") / f"diagnosis-{run_id}"
 output_dir.mkdir(parents=True, exist_ok=False)
 (output_dir / "prompt.txt").write_text(prompt, encoding="utf-8")
 

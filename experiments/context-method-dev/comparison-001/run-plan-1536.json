@@ -1,0 +1,119 @@
+{
+  "purpose": "development_pipeline_check",
+  "series_id": "method-dev-002",
+  "order_seed": 20261112,
+  "comparison_manifest": "experiments/context-method-dev/comparison-001/comparison-manifest.json",
+  "comparison_manifest_sha256": "1ae87c8fb48cb73d05d1a35801b52e4dc08ccb28cebf802617fb4b4989e0da33",
+  "runner_file": "src/run_diagnosis.py",
+  "runner_sha256": "9beef31939b1bb9491681bc19155483a0b58fd05e9f71f58971acb7a4a6b2664",
+  "expected_model": "Qwen/Qwen3-1.7B",
+  "expected_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+  "expected_generation": {
+    "max_new_tokens": 1536,
+    "do_sample": true,
+    "temperature": 0.7,
+    "top_p": 0.8,
+    "top_k": 20
+  },
+  "jobs": [
+    {
+      "job_id": "P0-seed-44",
+      "condition": "P0",
+      "seed": 44,
+      "prompt_file": "experiments/context-method-dev/comparison-001/prompt-P0.txt",
+      "prompt_sha256": "416bf4d1f2e5e9da243266a3e8a72d8075e33a3f26a5a9a82fd89e6852850903",
+      "output_dir": "results/raw/method-dev-002/P0-seed-44"
+    },
+    {
+      "job_id": "S0-seed-44",
+      "condition": "S0",
+      "seed": 44,
+      "prompt_file": "experiments/context-method-dev/comparison-001/prompt-S0.txt",
+      "prompt_sha256": "9009d70f1045c8114cef02da42e7dd8cddfaa5a02c9fad29eae755d8640883c4",
+      "output_dir": "results/raw/method-dev-002/S0-seed-44"
+    },
+    {
+      "job_id": "S1-seed-43",
+      "condition": "S1",
+      "seed": 43,
+      "prompt_file": "experiments/context-method-dev/comparison-001/prompt-S1.txt",
+      "prompt_sha256": "ffe38bf305df674d5c58eb0e4803deb2814fe0f8a87ada86b8510b90703a3813",
+      "output_dir": "results/raw/method-dev-002/S1-seed-43"
+    },
+    {
+      "job_id": "P1-seed-43",
+      "condition": "P1",
+      "seed": 43,
+      "prompt_file": "experiments/context-method-dev/comparison-001/prompt-P1.txt",
+      "prompt_sha256": "2e2b9e6e5a54e20864faf8dff98a8cc255a4dec36ed29c02445339b28e23294d",
+      "output_dir": "results/raw/method-dev-002/P1-seed-43"
+    },
+    {
+      "job_id": "P0-seed-43",
+      "condition": "P0",
+      "seed": 43,
+      "prompt_file": "experiments/context-method-dev/comparison-001/prompt-P0.txt",
+      "prompt_sha256": "416bf4d1f2e5e9da243266a3e8a72d8075e33a3f26a5a9a82fd89e6852850903",
+      "output_dir": "results/raw/method-dev-002/P0-seed-43"
+    },
+    {
+      "job_id": "P0-seed-42",
+      "condition": "P0",
+      "seed": 42,
+      "prompt_file": "experiments/context-method-dev/comparison-001/prompt-P0.txt",
+      "prompt_sha256": "416bf4d1f2e5e9da243266a3e8a72d8075e33a3f26a5a9a82fd89e6852850903",
+      "output_dir": "results/raw/method-dev-002/P0-seed-42"
+    },
+    {
+      "job_id": "S0-seed-43",
+      "condition": "S0",
+      "seed": 43,
+      "prompt_file": "experiments/context-method-dev/comparison-001/prompt-S0.txt",
+      "prompt_sha256": "9009d70f1045c8114cef02da42e7dd8cddfaa5a02c9fad29eae755d8640883c4",
+      "output_dir": "results/raw/method-dev-002/S0-seed-43"
+    },
+    {
+      "job_id": "S1-seed-42",
+      "condition": "S1",
+      "seed": 42,
+      "prompt_file": "experiments/context-method-dev/comparison-001/prompt-S1.txt",
+      "prompt_sha256": "ffe38bf305df674d5c58eb0e4803deb2814fe0f8a87ada86b8510b90703a3813",
+      "output_dir": "results/raw/method-dev-002/S1-seed-42"
+    },
+    {
+      "job_id": "P1-seed-42",
+      "condition": "P1",
+      "seed": 42,
+      "prompt_file": "experiments/context-method-dev/comparison-001/prompt-P1.txt",
+      "prompt_sha256": "2e2b9e6e5a54e20864faf8dff98a8cc255a4dec36ed29c02445339b28e23294d",
+      "output_dir": "results/raw/method-dev-002/P1-seed-42"
+    },
+    {
+      "job_id": "S1-seed-44",
+      "condition": "S1",
+      "seed": 44,
+      "prompt_file": "experiments/context-method-dev/comparison-001/prompt-S1.txt",
+      "prompt_sha256": "ffe38bf305df674d5c58eb0e4803deb2814fe0f8a87ada86b8510b90703a3813",
+      "output_dir": "results/raw/method-dev-002/S1-seed-44"
+    },
+    {
+      "job_id": "P1-seed-44",
+      "condition": "P1",
+      "seed": 44,
+      "prompt_file": "experiments/context-method-dev/comparison-001/prompt-P1.txt",
+      "prompt_sha256": "2e2b9e6e5a54e20864faf8dff98a8cc255a4dec36ed29c02445339b28e23294d",
+      "output_dir": "results/raw/method-dev-002/P1-seed-44"
+    },
+    {
+      "job_id": "S0-seed-42",
+      "condition": "S0",
+      "seed": 42,
+      "prompt_file": "experiments/context-method-dev/comparison-001/prompt-S0.txt",
+      "prompt_sha256": "9009d70f1045c8114cef02da42e7dd8cddfaa5a02c9fad29eae755d8640883c4",
+      "output_dir": "results/raw/method-dev-002/S0-seed-42"
+    }
+  ],
+  "parent_plan": "experiments/context-method-dev/comparison-001/run-plan.json",
+  "parent_plan_sha256": "998fbac5714902387ffd03209fc77fae57de9aa7e32b82dd01e2b971cdab7cdd",
+  "change_reason": "Development follow-up: 9 of 12 previous answers reached 768 tokens; several answers visibly ended before completion. All conditions receive the same increased output budget."
+}

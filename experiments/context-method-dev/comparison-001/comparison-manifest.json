@@ -1,0 +1,53 @@
+{
+  "purpose": "development_pipeline_check",
+  "incident_id": "incident-002",
+  "input_file": "experiments/context-method-dev/incident-002-sources.json",
+  "input_sha256": "45e5600dbb2d224a8bdc1899b53453631022aa336985ff92ee405f0150f28ade",
+  "build_manifest": "experiments/context-method-dev/build-005/build-manifest.json",
+  "build_manifest_sha256": "2c527a29a9da8edf020857e7f5582e465ce216551e621781893debfc9be934a1",
+  "generator_sha256": "e2d05ddb62fd30b27e5acee342e347f1e46f00a9d448cab50a6d93665addb3db",
+  "conditions": [
+    {
+      "condition": "P0",
+      "representation": "plain",
+      "instruction": "original",
+      "file": "prompt-P0.txt",
+      "sha256": "416bf4d1f2e5e9da243266a3e8a72d8075e33a3f26a5a9a82fd89e6852850903",
+      "context_sha256": "74f4838ec5099142fd4741deb6f027cf6820440000baed52f8836d3875a78e92",
+      "instruction_sha256": "9cf8a728fec2459992d95ed1b26fb272ae5ace5a6e7978cbd03b2b1a792c4a2f"
+    },
+    {
+      "condition": "S0",
+      "representation": "structured",
+      "instruction": "original",
+      "file": "prompt-S0.txt",
+      "sha256": "9009d70f1045c8114cef02da42e7dd8cddfaa5a02c9fad29eae755d8640883c4",
+      "context_sha256": "4cf4aa9a65ee5632773ca3472b35c39464347343d27e5c07b55aaad5e3993fd0",
+      "instruction_sha256": "9cf8a728fec2459992d95ed1b26fb272ae5ace5a6e7978cbd03b2b1a792c4a2f"
+    },
+    {
+      "condition": "P1",
+      "representation": "plain",
+      "instruction": "enhanced",
+      "file": "prompt-P1.txt",
+      "sha256": "2e2b9e6e5a54e20864faf8dff98a8cc255a4dec36ed29c02445339b28e23294d",
+      "context_sha256": "74f4838ec5099142fd4741deb6f027cf6820440000baed52f8836d3875a78e92",
+      "instruction_sha256": "21a406f984e5bce5018ffae491e1cd69427f18466de890f1ddf46a8e091b367b"
+    },
+    {
+      "condition": "S1",
+      "representation": "structured",
+      "instruction": "enhanced",
+      "file": "prompt-S1.txt",
+      "sha256": "ffe38bf305df674d5c58eb0e4803deb2814fe0f8a87ada86b8510b90703a3813",
+      "context_sha256": "4cf4aa9a65ee5632773ca3472b35c39464347343d27e5c07b55aaad5e3993fd0",
+      "instruction_sha256": "21a406f984e5bce5018ffae491e1cd69427f18466de890f1ddf46a8e091b367b"
+    }
+  ],
+  "limitations": [
+    "Known development incident; not an independent evaluation.",
+    "Enhanced instructions change prompt length.",
+    "Shared source and temporal explanations are present in all conditions.",
+    "This comparison does not isolate the benefit of adding those metadata."
+  ]
+}
