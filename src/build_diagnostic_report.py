@@ -29,7 +29,7 @@ def compose(facts, observations, answer):
         if 'text' in item and 'raw_text' in item and item['text'] != item['raw_text']:
             raise ValueError('Conflicting observation text')
         source[identifier] = text
-    if not isinstance(answer, str) or not answer.strip():
+    if answer is not None and (not isinstance(answer, str) or not answer.strip()):
         raise ValueError('Empty model answer')
     entries = facts.get('facts')
     if not isinstance(entries, list):
@@ -69,7 +69,7 @@ def compose(facts, observations, answer):
             'temporal_eligibility_checked': False,
             'rule_semantics_checked_by_report_builder': False,
         },
-        'model_output': {'status': 'not_automatically_verified', 'text': answer},
+        'model_output': {'status': 'not_run' if answer is None else 'not_automatically_verified', 'text': answer},
     }
 
 
@@ -87,9 +87,13 @@ def render(report):
             lines += ['', 'Источник:', '', literal(evidence['observation_id']), '', literal(evidence['quote'])]
         lines += ['', 'Границы вывода по правилу:', '', literal('\n'.join(fact['not_established'])),
                   '', 'Предлагаемая правилом проверка (не выполнена автоматически):', '', literal(fact['next_check'])]
-    lines += ['', '## Ответ модели — не проверен автоматически', '',
+    if report['model_output']['status'] == 'not_run':
+        lines += ['', '## Языковая модель', '', 'Модель не запускалась. Отчёт сформирован только по правилам.']
+    else:
+        lines += ['', '## Ответ модели — не проверен автоматически', '',
               'Этот раздел может содержать ошибки и противоречия. Он не изменяет данные раздела выше.', '',
-              literal(report['model_output']['text']), '',
+              literal(report['model_output']['text'])]
+    lines += ['',
               '## Происхождение отчёта', '', literal(json.dumps(report.get('provenance', {}), ensure_ascii=False, indent=2))]
     return '\n'.join(lines) + '\n'
 

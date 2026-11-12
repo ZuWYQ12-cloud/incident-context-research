@@ -59,6 +59,16 @@ class ReportTests(unittest.TestCase):
         self.assertIn('Источник:\n\n```text\nE3\n```', text)
         self.assertNotIn('Источник: ```', text)
 
+    def test_rules_only_is_explicit(self):
+        report = compose(self.facts, self.observations, None)
+        self.assertEqual(report['model_output'], {'status': 'not_run', 'text': None})
+        self.assertIn('Модель не запускалась', render(report))
+        self.assertNotIn('## Ответ модели', render(report))
+
+    def test_empty_model_answer_not_rules_only(self):
+        with self.assertRaises(ValueError):
+            compose(self.facts, self.observations, '')
+
 
 if __name__ == '__main__':
     unittest.main()
