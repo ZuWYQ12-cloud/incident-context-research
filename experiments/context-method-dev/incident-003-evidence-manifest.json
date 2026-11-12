@@ -1,0 +1,200 @@
+{
+  "incident_id": "incident-003",
+  "purpose": "development",
+  "raw_directory": "results/raw/20261112T144344Z-table-permission",
+  "diagnosis_cutoff": "2026-11-12T14:54:20Z",
+  "time_mode": "audit_without_filtering",
+  "limitations": [
+    "Время получения журналов совпадает с исключающей границей диагностики.",
+    "Строгая временная допустимость журналов не подтверждена.",
+    "Код выгрузки 0 не доказывает полноту журналов.",
+    "Сведения о вмешательстве и восстановлении не включаются в запрос модели."
+  ],
+  "files": [
+    {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/api_before_recovery.collected_at.txt",
+      "bytes": 21,
+      "sha256": "bcea96c38c5c15919ae12e3e4a62f4dde5859e3ddd3422e24f13affd69d99f18"
+    },
+    {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/api_before_recovery.log",
+      "bytes": 12248,
+      "sha256": "b7da7d81e4b5d634aebe401ca25e08f4429dd13aa77b93bde92cb7b9568aaa89"
+    },
+    {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/before_health_live.body",
+      "bytes": 18,
+      "sha256": "bc24b0b5a305d5afc198c725890c8fb91053be2dbd8672779de73cac19a008fa"
+    },
+    {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/before_health_live.collected_at.txt",
+      "bytes": 21,
+      "sha256": "8f33129100304282378b51c53c203c4aaaf2d6383602f2b23a2e6a19882422ff"
+    },
+    {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/before_health_live.headers",
+      "bytes": 173,
+      "sha256": "3c31d93bb7fbc77b31e4182b7d561e6d828e993c4445339a2e69e3adc61a2e04"
+    },
+    {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/before_health_live.meta",
+      "bytes": 78,
+      "sha256": "2a8bf89bcaacc169e7ccf4c638124e5797eb54f9591dea7ccd50e2f61b05a758"
+    },
+    {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/before_health_live.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/before_health_ready.body",
+      "bytes": 18,
+      "sha256": "31bf75f4c0a97cc1f7b60df824fa390b3be9ba014f29b63c87c698ba63d9a9fd"
+    },
+    {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/before_health_ready.collected_at.txt",
+      "bytes": 21,
+      "sha256": "8f33129100304282378b51c53c203c4aaaf2d6383602f2b23a2e6a19882422ff"
+    },
+    {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/before_health_ready.headers",
+      "bytes": 173,
+      "sha256": "f5aa8b0eab9b4d89f4d5f6e5f1f39a33d1b1819a5a693cd5e3f6547c90c59456"
+    },
+    {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/before_health_ready.meta",
+      "bytes": 78,
+      "sha256": "ff5a6469942dda41845fc4e22384eb535d75ce7adc3b89f30f6eb94cc9085d6f"
+    },
+    {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/before_health_ready.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/before_tasks.body",
+      "bytes": 203,
+      "sha256": "c4fb082af26c8f6f39bb026fd400850c2f9c16722c77c683f6d47663d0b17623"
+    },
+    {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/before_tasks.collected_at.txt",
+      "bytes": 21,
+      "sha256": "8f33129100304282378b51c53c203c4aaaf2d6383602f2b23a2e6a19882422ff"
+    },
+    {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/before_tasks.headers",
+      "bytes": 174,
+      "sha256": "1c324c7f5fceb95266cb9c2882347591c5c51f3a859ce788e84c06bc9c22cf00"
+    },
+    {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/before_tasks.meta",
+      "bytes": 78,
+      "sha256": "79f5a75db483fed4b3e3db16fa4f4efa210205fffbb1125558b69e6d6edba475"
+    },
+    {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/before_tasks.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/db_before_recovery.collected_at.txt",
+      "bytes": 21,
+      "sha256": "bcea96c38c5c15919ae12e3e4a62f4dde5859e3ddd3422e24f13affd69d99f18"
+    },
+    {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/db_before_recovery.log",
+      "bytes": 1378,
+      "sha256": "78aedadb86d4adb4a7092ffe33b43cc12a11d90fb7bb3e65675f933d6b138442"
+    },
+    {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/during_health_live.body",
+      "bytes": 18,
+      "sha256": "bc24b0b5a305d5afc198c725890c8fb91053be2dbd8672779de73cac19a008fa"
+    },
+    {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/during_health_live.collected_at.txt",
+      "bytes": 21,
+      "sha256": "cca1ad8c254f04769e8a2c58fe6c388bea495739598306504ecd72624ec93f0e"
+    },
+    {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/during_health_live.headers",
+      "bytes": 173,
+      "sha256": "3213501ed5cd6698ca0ef8fb9c0315c2555c96902188dff1de5b6984d540164a"
+    },
+    {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/during_health_live.meta",
+      "bytes": 78,
+      "sha256": "bfe66c38b973330311b242318103b8c31a063d44434a003aa916f855cf4792b1"
+    },
+    {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/during_health_live.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/during_health_ready.body",
+      "bytes": 44,
+      "sha256": "383330cc89eab09f6ad2f1d3a6fe9261fac9a7fe7b1a077f30ea87066fbcbd8d"
+    },
+    {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/during_health_ready.collected_at.txt",
+      "bytes": 21,
+      "sha256": "cca1ad8c254f04769e8a2c58fe6c388bea495739598306504ecd72624ec93f0e"
+    },
+    {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/during_health_ready.headers",
+      "bytes": 190,
+      "sha256": "cfba014e9cf71e0be3c34dc6fd94c869cb6759ee3eeec149b158d9518027b019"
+    },
+    {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/during_health_ready.meta",
+      "bytes": 78,
+      "sha256": "7b0f6a51f06a864272a652fda2c6027658e74de48b5665d8f1e3e6270c117f34"
+    },
+    {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/during_health_ready.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/during_tasks.body",
+      "bytes": 21,
+      "sha256": "e41656eb2ba6c6293bf6dd928e5a88cdbc50535cab661c1969e0f598e497ed62"
+    },
+    {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/during_tasks.collected_at.txt",
+      "bytes": 21,
+      "sha256": "cca1ad8c254f04769e8a2c58fe6c388bea495739598306504ecd72624ec93f0e"
+    },
+    {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/during_tasks.headers",
+      "bytes": 153,
+      "sha256": "f3d9c4180dee8af6d257a8132c81a5aae7a4a164a2ee9da5a9b7964a432f93d3"
+    },
+    {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/during_tasks.meta",
+      "bytes": 78,
+      "sha256": "ef83aa1795af32b3d5969eeb00c0e68e14da09923b41af9f9274606f3da25f55"
+    },
+    {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/during_tasks.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "results/raw/20261112T144344Z-table-permission/operator/diagnosis_cutoff_utc.txt",
+      "bytes": 21,
+      "sha256": "bcea96c38c5c15919ae12e3e4a62f4dde5859e3ddd3422e24f13affd69d99f18"
+    },
+    {
+      "path": "results/raw/20261112T144344Z-table-permission/operator/api_logs_exit_code.txt",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "results/raw/20261112T144344Z-table-permission/operator/db_logs_exit_code.txt",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    }
+  ]
+}
