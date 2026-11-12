@@ -1,0 +1,123 @@
+{
+  "schema_version": "0.1",
+  "incident_id": "incident-003",
+  "purpose": "development",
+  "input_file": "experiments/context-method-dev/incident-003-pair/input.json",
+  "input_sha256": "01017c44ade41a2f86faa5521c0ceaf65ecf89d66ac62539c878193257788993",
+  "builder_sha256": "8c0d9370b13faae64835e7eabee0c703aceedf2273be10102f25fbf38d31fae2",
+  "module_sha256": {
+    "context_time.py": "a255be99767b21dc9cdc10d95427e11a236200b4e2bfb91b4ac1430aea77d3e7",
+    "context_sources.py": "70cd1668e47df6a680d2c2729797c515737c90bfbaf8dd951e5b4c7ca57814f3",
+    "extract_diagnostic_facts.py": "94b07027fda5adcfaddfaa0e4a574c2f20e72d5465e909f928e061d20836e9ee"
+  },
+  "source_audit": null,
+  "source_context": [],
+  "temporal_context": null,
+  "temporal_presentation": "shared_defaults_compact_json",
+  "time_section_equal_between_variants": true,
+  "source_section_equal_between_variants": true,
+  "observation_order": [
+    "E1",
+    "E2",
+    "E3",
+    "E4"
+  ],
+  "checks": {
+    "source_hashes_match": true,
+    "excerpts_found_in_sources": true,
+    "observation_texts_equal": true
+  },
+  "time_audit_mode": "report_only",
+  "diagnosis_cutoff": "2026-11-12T14:54:20Z",
+  "time_audit": {
+    "E1": {
+      "event_time_status": "before",
+      "collection_time_status": "before",
+      "strict_eligible": true,
+      "time_model": "truncated_timestamp_intervals",
+      "clock_synchronization_verified": false
+    },
+    "E2": {
+      "event_time_status": "before",
+      "collection_time_status": "before",
+      "strict_eligible": true,
+      "time_model": "truncated_timestamp_intervals",
+      "clock_synchronization_verified": false
+    },
+    "E3": {
+      "event_time_status": "missing",
+      "collection_time_status": "at_or_after",
+      "strict_eligible": false,
+      "time_model": "truncated_timestamp_intervals",
+      "clock_synchronization_verified": false
+    },
+    "E4": {
+      "event_time_status": "missing",
+      "collection_time_status": "at_or_after",
+      "strict_eligible": false,
+      "time_model": "truncated_timestamp_intervals",
+      "clock_synchronization_verified": false
+    }
+  },
+  "all_observations_strict_eligible": false,
+  "limitations": [
+    "Timestamp annotations are supplied in input; audit does not filter observations.",
+    "No claim of equal token counts between representations.",
+    "Input consists of prepared excerpts, not raw telemetry.",
+    "Diagnostic guidance adds external rule-based knowledge, not raw evidence; it is not a formatting-only change or a root-cause verification."
+  ],
+  "output_sha256": {
+    "prompt-plain.txt": "077e2fd4922cf8161eb749a6bf80d50614042f30ba9f0f7e5c6c282ff474f37c",
+    "prompt-structured.txt": "1a678014b938e8592634c8f63ce41ddb73bbd123ff2690745ed202c9300d54ad",
+    "diagnostic-facts.json": "af6e54395e474e886e65de97a54bd09bb46a61b08a6eb69b0dca16d94035a187",
+    "diagnostic-context.txt": "a1caa2d6c9812bfdea79d5109d845519577ccb7d34f9314a956173d9f401eb49"
+  },
+  "diagnostic_facts_enabled": true,
+  "diagnostic_context": {
+    "schema_version": "0.1",
+    "purpose": "development_signature_extraction",
+    "facts": [
+      {
+        "signature": "table_permission_denied",
+        "meaning": "Зарегистрирован отказ доступа к таблице или отношению из-за прав.",
+        "evidence": [
+          {
+            "observation_id": "E3",
+            "quote": "db-1  | 2026-11-12T14:54:12.160801042Z 2026-11-12 14:54:12.160 UTC [1276] ERROR:  permission denied for table production_tasks",
+            "start_char": 926,
+            "end_char": 1052
+          },
+          {
+            "observation_id": "E3",
+            "quote": "db-1  | 2026-11-12T14:54:12.182838736Z 2026-11-12 14:54:12.182 UTC [1277] ERROR:  permission denied for table production_tasks",
+            "start_char": 1179,
+            "end_char": 1305
+          },
+          {
+            "observation_id": "E4",
+            "quote": "api-1  | 2026-11-12T14:54:12.197212372Z psycopg.errors.InsufficientPrivilege: permission denied for table production_tasks",
+            "start_char": 12193,
+            "end_char": 12315
+          }
+        ],
+        "not_established": [
+          "Кто изменил права и изменялись ли они вообще."
+        ],
+        "next_check": "Проверить текущую роль соединения и её права на указанный объект."
+      }
+    ],
+    "observations_without_supported_signature": [
+      "E1",
+      "E2"
+    ],
+    "limitations": [
+      "Совпадение строки с сигнатурой не доказывает первопричину или подлинность журнала.",
+      "Поддерживаются четыре явные сигнатуры; отсутствие совпадения не означает отсутствия ошибки.",
+      "Разные сигнатуры сохраняются вместе, а не сводятся к одной причине.",
+      "Временная допустимость и связи разных попыток подключения здесь не проверяются.",
+      "Пояснения и рекомендации являются внешними правилами, а не исходными наблюдениями."
+    ]
+  },
+  "diagnostic_section_equal_between_variants": true,
+  "diagnostic_section_sha256": "a1caa2d6c9812bfdea79d5109d845519577ccb7d34f9314a956173d9f401eb49"
+}

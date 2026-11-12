@@ -1,0 +1,45 @@
+{
+  "schema_version": "0.1",
+  "purpose": "development_signature_extraction",
+  "facts": [
+    {
+      "signature": "table_permission_denied",
+      "meaning": "Зарегистрирован отказ доступа к таблице или отношению из-за прав.",
+      "evidence": [
+        {
+          "observation_id": "E3",
+          "quote": "db-1  | 2026-11-12T14:54:12.160801042Z 2026-11-12 14:54:12.160 UTC [1276] ERROR:  permission denied for table production_tasks",
+          "start_char": 926,
+          "end_char": 1052
+        },
+        {
+          "observation_id": "E3",
+          "quote": "db-1  | 2026-11-12T14:54:12.182838736Z 2026-11-12 14:54:12.182 UTC [1277] ERROR:  permission denied for table production_tasks",
+          "start_char": 1179,
+          "end_char": 1305
+        },
+        {
+          "observation_id": "E4",
+          "quote": "api-1  | 2026-11-12T14:54:12.197212372Z psycopg.errors.InsufficientPrivilege: permission denied for table production_tasks",
+          "start_char": 12193,
+          "end_char": 12315
+        }
+      ],
+      "not_established": [
+        "Кто изменил права и изменялись ли они вообще."
+      ],
+      "next_check": "Проверить текущую роль соединения и её права на указанный объект."
+    }
+  ],
+  "observations_without_supported_signature": [
+    "E1",
+    "E2"
+  ],
+  "limitations": [
+    "Совпадение строки с сигнатурой не доказывает первопричину или подлинность журнала.",
+    "Поддерживаются четыре явные сигнатуры; отсутствие совпадения не означает отсутствия ошибки.",
+    "Разные сигнатуры сохраняются вместе, а не сводятся к одной причине.",
+    "Временная допустимость и связи разных попыток подключения здесь не проверяются.",
+    "Пояснения и рекомендации являются внешними правилами, а не исходными наблюдениями."
+  ]
+}

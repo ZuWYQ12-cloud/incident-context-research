@@ -1,0 +1,98 @@
+{
+  "purpose": "development_paired_rule_check",
+  "input_format": "schema 0.1; shared source/time limitations explicitly included in header",
+  "selection": "HTTP metadata for before/during and entire saved API/DB logs; no error-based line selection",
+  "source_files": {
+    "observations/before_health_live.meta": {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/before_health_live.meta",
+      "sha256": "2a8bf89bcaacc169e7ccf4c638124e5797eb54f9591dea7ccd50e2f61b05a758"
+    },
+    "observations/before_health_live.collected_at.txt": {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/before_health_live.collected_at.txt",
+      "sha256": "8f33129100304282378b51c53c203c4aaaf2d6383602f2b23a2e6a19882422ff"
+    },
+    "observations/before_health_ready.meta": {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/before_health_ready.meta",
+      "sha256": "ff5a6469942dda41845fc4e22384eb535d75ce7adc3b89f30f6eb94cc9085d6f"
+    },
+    "observations/before_health_ready.collected_at.txt": {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/before_health_ready.collected_at.txt",
+      "sha256": "8f33129100304282378b51c53c203c4aaaf2d6383602f2b23a2e6a19882422ff"
+    },
+    "observations/before_tasks.meta": {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/before_tasks.meta",
+      "sha256": "79f5a75db483fed4b3e3db16fa4f4efa210205fffbb1125558b69e6d6edba475"
+    },
+    "observations/before_tasks.collected_at.txt": {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/before_tasks.collected_at.txt",
+      "sha256": "8f33129100304282378b51c53c203c4aaaf2d6383602f2b23a2e6a19882422ff"
+    },
+    "observations/during_health_live.meta": {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/during_health_live.meta",
+      "sha256": "bfe66c38b973330311b242318103b8c31a063d44434a003aa916f855cf4792b1"
+    },
+    "observations/during_health_live.collected_at.txt": {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/during_health_live.collected_at.txt",
+      "sha256": "cca1ad8c254f04769e8a2c58fe6c388bea495739598306504ecd72624ec93f0e"
+    },
+    "observations/during_health_ready.meta": {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/during_health_ready.meta",
+      "sha256": "7b0f6a51f06a864272a652fda2c6027658e74de48b5665d8f1e3e6270c117f34"
+    },
+    "observations/during_health_ready.collected_at.txt": {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/during_health_ready.collected_at.txt",
+      "sha256": "cca1ad8c254f04769e8a2c58fe6c388bea495739598306504ecd72624ec93f0e"
+    },
+    "observations/during_tasks.meta": {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/during_tasks.meta",
+      "sha256": "ef83aa1795af32b3d5969eeb00c0e68e14da09923b41af9f9274606f3da25f55"
+    },
+    "observations/during_tasks.collected_at.txt": {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/during_tasks.collected_at.txt",
+      "sha256": "cca1ad8c254f04769e8a2c58fe6c388bea495739598306504ecd72624ec93f0e"
+    },
+    "operator/db_logs_exit_code.txt": {
+      "path": "results/raw/20261112T144344Z-table-permission/operator/db_logs_exit_code.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    "observations/db_before_recovery.log": {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/db_before_recovery.log",
+      "sha256": "78aedadb86d4adb4a7092ffe33b43cc12a11d90fb7bb3e65675f933d6b138442"
+    },
+    "observations/db_before_recovery.collected_at.txt": {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/db_before_recovery.collected_at.txt",
+      "sha256": "bcea96c38c5c15919ae12e3e4a62f4dde5859e3ddd3422e24f13affd69d99f18"
+    },
+    "operator/api_logs_exit_code.txt": {
+      "path": "results/raw/20261112T144344Z-table-permission/operator/api_logs_exit_code.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    "observations/api_before_recovery.log": {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/api_before_recovery.log",
+      "sha256": "b7da7d81e4b5d634aebe401ca25e08f4429dd13aa77b93bde92cb7b9568aaa89"
+    },
+    "observations/api_before_recovery.collected_at.txt": {
+      "path": "results/raw/20261112T144344Z-table-permission/observations/api_before_recovery.collected_at.txt",
+      "sha256": "bcea96c38c5c15919ae12e3e4a62f4dde5859e3ddd3422e24f13affd69d99f18"
+    }
+  },
+  "cutoff_sha256": "bcea96c38c5c15919ae12e3e4a62f4dde5859e3ddd3422e24f13affd69d99f18",
+  "question_template_sha256": "9cf8a728fec2459992d95ed1b26fb272ae5ace5a6e7978cbd03b2b1a792c4a2f",
+  "preparer_sha256": "8524b0c35b15a5b8faf9dba403fc5655e9b4efbd15cc571c23a95203581f0827",
+  "comparison": {
+    "only_diagnostic_section_differs": true,
+    "baseline_sha256": "8698258cc89b90ea67f3a1ecdf7725513c2230bcefe7ac8503f4d64b1ca16b3e",
+    "with_rules_sha256": "077e2fd4922cf8161eb749a6bf80d50614042f30ba9f0f7e5c6c282ff474f37c"
+  },
+  "planned_seeds": [
+    42,
+    43,
+    44
+  ],
+  "planned_max_new_tokens": 1536,
+  "limitations": [
+    "No main-study efficacy claim; same known stand and supported failure signature.",
+    "Full logs may add irrelevant events; both conditions receive the same events.",
+    "The four-condition 12-job runner is not compatible with this two-condition pair."
+  ]
+}
