@@ -6,6 +6,7 @@ from contextlib import closing
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from http_incident_summary import summarize_http
 
 
 def snapshot(database, evidence_root, stale_seconds=30):
@@ -42,6 +43,7 @@ def snapshot(database, evidence_root, stale_seconds=30):
                     }
                 except (OSError, ValueError, TypeError, AttributeError):
                     item['evidence'] = {'status': 'unreadable', 'observations': []}
+        item['diagnosis'] = summarize_http(item['evidence'])
         incidents.append(item)
     return {'url': settings['url'], 'state': state['status'], 'last_check': last,
             'stale': age is None or age > stale_seconds, 'age_seconds': age,
@@ -87,6 +89,22 @@ async function refresh(){
    box.append(el('summary',(incident.recovered_at?'Восстановлен':'Открыт')+' · '+time(incident.opened_at)));
    box.append(el('p','Идентификатор: '+incident.incident_id));
    box.append(el('p','Первый неуспешный замер: '+time(incident.first_bad_at)+' · Восстановление подтверждено: '+time(incident.recovered_at)));
+   const diagnosis=incident.diagnosis;
+   if(diagnosis){
+    const panel=document.createElement('section');panel.className='card';
+    panel.append(el('h3',diagnosis.title));panel.append(el('p',diagnosis.method));
+    panel.append(el('h4','Подтверждено сохранёнными наблюдениями'));
+    if(!diagnosis.facts.length)panel.append(el('p','Доступных HTTP-наблюдений нет.'));
+    for(const fact of diagnosis.facts){
+     panel.append(el('p','['+fact.reference+'] '+fact.url+' · '+time(fact.collected_at)+' · '+fact.meaning));
+     if(fact.error)panel.append(el('code',fact.error));
+    }
+    for(const [title,items] of [['Что остаётся неизвестным и ограничения',diagnosis.unknowns],['Следующие проверки',diagnosis.checks]]){
+     panel.append(el('h4',title));const list=document.createElement('ul');
+     for(const text of items)list.append(el('li',text));panel.append(list);
+    }
+    box.append(panel);
+   }
    if(!incident.evidence)box.append(el('p','HTTP-материалы не найдены.'));
    else{
     const evidence=incident.evidence;
