@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from http_incident_summary import summarize_http
+from incident_log_review import review_logs
 
 
 def snapshot(database, evidence_root, stale_seconds=30):
@@ -44,6 +45,7 @@ def snapshot(database, evidence_root, stale_seconds=30):
                 except (OSError, ValueError, TypeError, AttributeError):
                     item['evidence'] = {'status': 'unreadable', 'observations': []}
         item['diagnosis'] = summarize_http(item['evidence'])
+        item['logs'] = review_logs(Path(evidence_root) / identifier, identifier) if len(identifier) == 32 and all(c in '0123456789abcdef' for c in identifier) else {'status': 'missing'}
         incidents.append(item)
     return {'url': settings['url'], 'state': state['status'], 'last_check': last,
             'stale': age is None or age > stale_seconds, 'age_seconds': age,
@@ -81,7 +83,7 @@ async function refresh(){
   $('refresh-time').textContent='Обновлено '+new Date().toLocaleTimeString('ru-RU');
   $('checks').replaceChildren();
   for(const check of data.checks){const tr=document.createElement('tr');for(const value of [time(check.checked_at),check.http_status??'нет ответа',check.error||(check.ok?'Успешно':'Неуспешный HTTP-ответ')])tr.append(el('td',value));$('checks').append(tr);}
-  const opened=new Set([...$('incidents').querySelectorAll('details[open]')].map(e=>e.dataset.id));
+  const opened=new Set([...$('incidents').querySelectorAll('details[data-id][open]')].map(e=>e.dataset.id));
   $('incidents').replaceChildren();
   if(!data.incidents.length)$('incidents').append(el('p','Инциденты пока не зарегистрированы.'));
   for(const incident of data.incidents){
@@ -111,6 +113,32 @@ async function refresh(){
     box.append(el('p','Сбор материалов: '+({completed:'завершён',collecting:'в процессе',failed:'ошибка',unreadable:'не удалось прочитать'}[evidence.status]||evidence.status)));
     if(evidence.limitation)box.append(el('p',evidence.limitation));
     for(const obs of evidence.observations){box.append(el('p',obs.url+' · HTTP '+(obs.http_status??'нет ответа')+' · '+(obs.error||'Ответ получен')+' · собрано '+time(obs.collected_at)));}
+   }
+   const logs=incident.logs;
+   if(logs){
+    box.append(el('h3','Журналы контейнеров и разбор ошибок'));
+    if(logs.status==='missing')box.append(el('p','Журналы для этого инцидента не собирались или не найдены.'));
+    else if(logs.status==='unreadable')box.append(el('p','Материалы недоступны для разбора: '+logs.error));
+    else{
+     box.append(el('p','Окно выгрузки: '+time(logs.since)+' — '+time(logs.until)));
+     for(const source of logs.sources){
+      const detail=document.createElement('details');detail.dataset.id=incident.incident_id+'-'+source.service;detail.open=opened.has(detail.dataset.id);
+      const labels={verified:'контрольная сумма совпадает; включён в разбор',empty:'контрольная сумма совпадает; журнал пуст',invalid:'проверка файла не пройдена',collection_failed:'ошибка выгрузки; исключён из разбора',truncated:'обрезан; исключён из разбора'};
+      detail.append(el('summary',source.service+' · '+(labels[source.status]||source.status)));
+      detail.append(el('p','Получен: '+time(source.collected_at)));
+      if(source.error)detail.append(el('p',source.error));
+      if(source.text){const pre=el('pre',source.text);pre.style.cssText='white-space:pre-wrap;overflow-wrap:anywhere;max-height:320px;overflow:auto;font-size:12px';detail.append(pre);}
+      box.append(detail);
+     }
+     if(!logs.facts.length)box.append(el('p','Поддерживаемые сигнатуры не найдены в доступных для разбора журналах. Причина не установлена.'));
+     for(const fact of logs.facts){
+      box.append(el('h4',fact.meaning));
+      for(const evidence of fact.evidence){box.append(el('p','Источник: '+evidence.observation_id));const quote=el('pre',evidence.quote);quote.style.cssText='white-space:pre-wrap;overflow-wrap:anywhere';box.append(quote);}
+      box.append(el('p','Не установлено: '+fact.not_established.join(' ')));
+      box.append(el('p','Следующая проверка: '+fact.next_check));
+     }
+     for(const note of logs.limitations)box.append(el('p',note));
+    }
    }
    $('incidents').append(box);
   }
