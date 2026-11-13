@@ -8,6 +8,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from http_incident_summary import summarize_http
 from incident_log_review import review_logs
+from incident_model_view import load_model_review
 
 
 def snapshot(database, evidence_root, stale_seconds=30):
@@ -46,6 +47,7 @@ def snapshot(database, evidence_root, stale_seconds=30):
                     item['evidence'] = {'status': 'unreadable', 'observations': []}
         item['diagnosis'] = summarize_http(item['evidence'])
         item['logs'] = review_logs(Path(evidence_root) / identifier, identifier) if len(identifier) == 32 and all(c in '0123456789abcdef' for c in identifier) else {'status': 'missing'}
+        item['model_review'] = load_model_review(Path(evidence_root) / identifier, identifier) if len(identifier) == 32 and all(c in '0123456789abcdef' for c in identifier) else {'status': 'missing'}
         incidents.append(item)
     return {'url': settings['url'], 'state': state['status'], 'last_check': last,
             'stale': age is None or age > stale_seconds, 'age_seconds': age,
@@ -139,6 +141,19 @@ async function refresh(){
      }
      for(const note of logs.limitations)box.append(el('p',note));
     }
+   }
+   const model=incident.model_review;
+   if(model){
+    const panel=document.createElement('section');panel.className='card';
+    panel.append(el('h3','Предположение модели — требует проверки'));
+    if(model.status==='available'){
+     panel.append(el('p',model.warning));
+     panel.append(el('p','Модель: '+model.model+' · seed: '+model.seed+' · токенов ответа: '+model.output_tokens));
+     panel.append(el('p','Запрос подготовлен: '+time(model.prepared_at)+' · ретроспективный разбор'));
+     if(model.token_limit_reached)panel.append(el('p','Достигнут лимит генерации: ответ может быть обрезан.'));
+     const answer=el('pre',model.answer);answer.style.cssText='white-space:pre-wrap;overflow-wrap:anywhere;font:inherit;line-height:1.6';panel.append(answer);
+    }else panel.append(el('p',model.status==='invalid'?'Ответ скрыт: '+model.error:model.status==='incomplete'?'Результат генерации ещё не сохранён полностью.':'Сохранённого ответа модели нет.'));
+    box.append(panel);
    }
    $('incidents').append(box);
   }
