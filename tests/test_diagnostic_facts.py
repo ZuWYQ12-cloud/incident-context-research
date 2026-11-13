@@ -12,6 +12,24 @@ def doc(*texts):
 
 
 class DiagnosticFactsTests(unittest.TestCase):
+    def test_finished_process_preserves_quote_without_inventing_cause(self):
+        text = ('api-1  | 2026-11-13T18:02:43.669931119Z INFO:     Application shutdown complete.\n'
+                'api-1  | 2026-11-13T18:02:43.670056227Z INFO:     Finished server process [1]\n')
+        fact = extract(doc(text))["facts"][0]
+        self.assertEqual(fact["signature"], "server_process_finished")
+        quote = fact["evidence"][0]
+        self.assertEqual(text[quote["start_char"]:quote["end_char"]], quote["quote"])
+        self.assertEqual(len(fact["evidence"]), 1)
+        self.assertIn("Причина и инициатор", fact["not_established"][0])
+
+    def test_shutdown_start_is_not_finished_process(self):
+        for text in ('INFO: Shutting down', 'INFO: Waiting for application shutdown.',
+                     'INFO: Application shutdown complete.',
+                     'INFO: Finished server process [1] is an example',
+                     '{"message": "INFO: Finished server process [1]"}'):
+            with self.subTest(text=text):
+                self.assertEqual(extract(doc(text))["facts"], [])
+
     def test_authentication_is_not_config_root_cause(self):
         text = 'FATAL: password authentication failed for user "demo"\nDETAIL: Connection matched file "pg_hba.conf" line 128'
         result = extract(doc(text))
