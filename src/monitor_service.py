@@ -111,7 +111,13 @@ def main():
     parser.add_argument('--max-checks', type=int, default=0, help='0: until Ctrl+C')
     parser.add_argument('--evidence-dir', type=Path)
     parser.add_argument('--service-url', help='HTTP service origin for evidence collection')
+    parser.add_argument('--compose-file', type=Path, help='Enable optional api/db log collection')
+    parser.add_argument('--docker-sudo', action='store_true', help='Use sudo -n for Docker only')
     args = parser.parse_args()
+    if args.compose_file and (not args.evidence_dir or not args.compose_file.is_file()):
+        parser.error('--compose-file требует существующий файл и --evidence-dir')
+    if args.docker_sudo and not args.compose_file:
+        parser.error('--docker-sudo требует --compose-file')
     if bool(args.evidence_dir) != bool(args.service_url):
         parser.error('--evidence-dir и --service-url задаются вместе')
     if args.interval <= 0 or args.timeout <= 0 or args.max_checks < 0:
@@ -134,6 +140,14 @@ def main():
                     print('HTTP-материалы сохранены:', directory, flush=True)
                 except Exception as exc:
                     print('Ошибка сбора HTTP-материалов:', str(exc), flush=True)
+                if args.compose_file:
+                    from collect_container_logs import collect_logs
+                    try:
+                        path = collect_logs(args.evidence_dir / event['incident_id'],
+                                            args.compose_file, event, args.docker_sudo)
+                        print('Результат выгрузки журналов (проверьте manifest.json):', path, flush=True)
+                    except Exception as exc:
+                        print('Ошибка сбора журналов:', str(exc), flush=True)
             count += 1
             if args.max_checks and count >= args.max_checks:
                 break
