@@ -2,6 +2,7 @@
 import argparse
 import json
 import sqlite3
+import secrets
 from contextlib import closing
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -9,6 +10,7 @@ from pathlib import Path
 from http_incident_summary import summarize_http
 from incident_log_review import review_logs
 from incident_model_view import load_model_review
+from model_assessment import save_assessment, VERDICTS
 
 
 def snapshot(database, evidence_root, stale_seconds=30):
@@ -73,6 +75,7 @@ const $=id=>document.getElementById(id);
 const time=v=>v?new Date(v).toLocaleString('ru-RU'):'—';
 function el(tag,text){const e=document.createElement(tag);e.textContent=text;return e;}
 async function refresh(){
+ if(document.activeElement?.closest('form'))return;
  try{
   const response=await fetch('/api/status',{cache:'no-store'});
   if(!response.ok)throw Error('Не удалось прочитать данные мониторинга');
@@ -158,6 +161,27 @@ async function refresh(){
       panel.append(el('p',assessment.label+' · '+assessment.reviewer+' · '+time(assessment.reviewed_at)));
       panel.append(el('p',assessment.note));panel.append(el('p',assessment.scope));
      }else panel.append(el('p',assessment?.message||'Ручная оценка ещё не сохранена.'));
+     if(assessment?.status==='missing'){
+      const form=document.createElement('form');
+      const author=document.createElement('input');author.required=true;author.maxLength=200;author.autocomplete='name';
+      const verdict=document.createElement('select');
+      for(const [value,title] of [['uncertain','Недостаточно данных для оценки'],['issues_found','Обнаружены замечания'],['supported','Замечаний по обоснованности не обнаружено']]){const option=el('option',title);option.value=value;verdict.append(option);}
+      const note=document.createElement('textarea');note.required=true;note.maxLength=10000;note.rows=5;
+      for(const [title,control] of [['Автор оценки',author],['Результат проверки',verdict],['Комментарий и основания оценки',note]]){
+       const label=el('label',title);label.style.display='block';control.style.cssText='display:block;box-sizing:border-box;width:100%;padding:10px;margin:6px 0 16px;font:inherit';label.append(control);form.append(label);
+      }
+      form.append(el('p','Если оценка подготовлена с ИИ-ассистентом, укажите это в комментарии. Сохранённая оценка не перезаписывается.'));
+      const submit=el('button','Сохранить оценку');submit.type='submit';const message=el('p','');message.setAttribute('role','status');form.append(submit,message);
+      form.onsubmit=async event=>{
+       event.preventDefault();submit.disabled=true;
+       try{
+        const response=await fetch('/api/assessment',{method:'POST',headers:{'Content-Type':'application/json','X-Review-Token':data.review_token},body:JSON.stringify({incident_id:incident.incident_id,reviewer:author.value,verdict:verdict.value,note:note.value})});
+        const result=await response.json();if(!response.ok)throw Error(result.error||'Ошибка сохранения');
+        form.remove();await refresh();
+       }catch(error){message.textContent=error.message;submit.disabled=false;}
+      };
+      panel.append(form);
+     }
     }else panel.append(el('p',model.status==='invalid'?'Ответ скрыт: '+model.error:model.status==='incomplete'?'Результат генерации ещё не сохранён полностью.':'Сохранённого ответа модели нет.'));
     box.append(panel);
    }
@@ -170,13 +194,55 @@ $('refresh').onclick=refresh;refresh();setInterval(refresh,5000);
 
 
 def handler(database, evidence_root, stale_seconds):
+    token = secrets.token_urlsafe(32)
     class Handler(BaseHTTPRequestHandler):
+        def do_POST(self):
+            if self.path != '/api/assessment':
+                self.send_error(404)
+                return
+            if not secrets.compare_digest(self.headers.get('X-Review-Token', ''), token):
+                self.send_error(403)
+                return
+            status, result = 201, {'saved': True}
+            try:
+                size = int(self.headers.get('Content-Length', '0'))
+                if not 0 < size <= 64000:
+                    raise ValueError('Недопустимый размер запроса')
+                self.connection.settimeout(5)
+                payload = json.loads(self.rfile.read(size))
+                identifier = payload['incident_id']
+                if not isinstance(identifier, str) or len(identifier) != 32 or any(c not in '0123456789abcdef' for c in identifier):
+                    raise ValueError('Некорректный идентификатор инцидента')
+                with closing(sqlite3.connect(Path(database).resolve().as_uri() + '?mode=ro', uri=True)) as db:
+                    if not db.execute('SELECT 1 FROM events WHERE incident_id=? AND event_type=?', (identifier, 'incident_opened')).fetchone():
+                        raise ValueError('Инцидент не найден в базе')
+                incident = Path(evidence_root) / identifier
+                if load_model_review(incident, identifier)['status'] != 'available':
+                    raise ValueError('Ответ модели или материалы не прошли проверку')
+                if not all(isinstance(payload.get(k), str) for k in ('reviewer', 'verdict', 'note')):
+                    raise ValueError('Заполните поля оценки')
+                save_assessment(incident / 'model-review-001', payload['reviewer'], payload['verdict'], payload['note'])
+            except FileExistsError:
+                status, result = 409, {'error': 'Оценка уже сохранена. Перезапись запрещена.'}
+            except (ValueError, KeyError, TypeError):
+                status, result = 400, {'error': 'Проверьте поля оценки и доступность материалов инцидента.'}
+            except (OSError, sqlite3.Error):
+                status, result = 503, {'error': 'Не удалось сохранить оценку.'}
+            body = json.dumps(result, ensure_ascii=False).encode('utf-8')
+            self.send_response(status)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_header('Content-Length', str(len(body)))
+            self.send_header('Cache-Control', 'no-store')
+            self.end_headers()
+            self.wfile.write(body)
+
         def do_GET(self):
             if self.path == '/':
                 body, content_type, status = PAGE.encode('utf-8'), 'text/html; charset=utf-8', 200
             elif self.path == '/api/status':
                 try:
                     data = snapshot(database, evidence_root, stale_seconds)
+                    data['review_token'] = token
                     body, status = json.dumps(data, ensure_ascii=False).encode('utf-8'), 200
                 except (sqlite3.Error, OSError, ValueError, TypeError):
                     body, status = b'{"error":"monitor data unavailable"}', 503
