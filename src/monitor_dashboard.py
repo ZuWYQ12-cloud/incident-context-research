@@ -152,6 +152,12 @@ async function refresh(){
      panel.append(el('p','Запрос подготовлен: '+time(model.prepared_at)+' · ретроспективный разбор'));
      if(model.token_limit_reached)panel.append(el('p','Достигнут лимит генерации: ответ может быть обрезан.'));
      const answer=el('pre',model.answer);answer.style.cssText='white-space:pre-wrap;overflow-wrap:anywhere;font:inherit;line-height:1.6';panel.append(answer);
+     panel.append(el('h4','Отметка инженера'));
+     const assessment=model.assessment;
+     if(assessment?.status==='current'){
+      panel.append(el('p',assessment.label+' · '+assessment.reviewer+' · '+time(assessment.reviewed_at)));
+      panel.append(el('p',assessment.note));panel.append(el('p',assessment.scope));
+     }else panel.append(el('p',assessment?.message||'Ручная оценка ещё не сохранена.'));
     }else panel.append(el('p',model.status==='invalid'?'Ответ скрыт: '+model.error:model.status==='incomplete'?'Результат генерации ещё не сохранён полностью.':'Сохранённого ответа модели нет.'));
     box.append(panel);
    }

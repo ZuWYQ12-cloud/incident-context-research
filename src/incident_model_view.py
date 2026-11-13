@@ -2,6 +2,7 @@
 import hashlib
 import json
 from pathlib import Path
+from model_assessment import load_assessment
 
 
 def load_model_review(incident_directory, incident_id):
@@ -44,6 +45,7 @@ def load_model_review(incident_directory, incident_id):
         if not answer.strip():
             raise ValueError('Ответ пуст')
         return {'status': 'available', 'answer': answer,
+                'assessment': load_assessment(root),
                 'prepared_at': record.get('prepared_at'),
                 'model': metadata.get('model'), 'seed': metadata.get('seed'),
                 'output_tokens': metadata.get('output_tokens'),
