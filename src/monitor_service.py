@@ -109,7 +109,11 @@ def main():
     parser.add_argument('--interval', type=float, default=5)
     parser.add_argument('--timeout', type=float, default=3)
     parser.add_argument('--max-checks', type=int, default=0, help='0: until Ctrl+C')
+    parser.add_argument('--evidence-dir', type=Path)
+    parser.add_argument('--service-url', help='HTTP service origin for evidence collection')
     args = parser.parse_args()
+    if bool(args.evidence_dir) != bool(args.service_url):
+        parser.error('--evidence-dir и --service-url задаются вместе')
     if args.interval <= 0 or args.timeout <= 0 or args.max_checks < 0:
         parser.error('Invalid interval, timeout or max-checks')
     if not args.url.startswith(('http://', 'https://')):
@@ -123,6 +127,13 @@ def main():
             sample = probe(args.url, args.timeout)
             event = monitor.observe(sample)
             print(json.dumps({'check': sample, 'event': event}, ensure_ascii=False), flush=True)
+            if event and event['event_type'] == 'incident_opened' and args.evidence_dir:
+                from collect_http_evidence import collect
+                try:
+                    directory = collect(args.evidence_dir, args.service_url, event, args.timeout)
+                    print('HTTP-материалы сохранены:', directory, flush=True)
+                except Exception as exc:
+                    print('Ошибка сбора HTTP-материалов:', str(exc), flush=True)
             count += 1
             if args.max_checks and count >= args.max_checks:
                 break
