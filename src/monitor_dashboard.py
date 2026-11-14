@@ -11,6 +11,7 @@ from http_incident_summary import summarize_http
 from incident_log_review import review_logs
 from incident_model_view import load_model_review
 from model_assessment import save_assessment, VERDICTS
+from incident_model_job import Jobs, job_state
 
 
 def snapshot(database, evidence_root, stale_seconds=30):
@@ -196,6 +197,19 @@ async function refresh(){
     }else panel.append(el('p',model.status==='invalid'?'Ответ скрыт: '+model.error:model.status==='incomplete'?'Результат генерации ещё не сохранён полностью.':'Сохранённого ответа модели нет.'));
     box.append(panel);
    }
+   if(data.model_enabled){
+    const job=incident.model_job||{status:'not_started'};
+    if(job.status!=='not_started')box.append(el('p','Диагностика: '+({queued:'ожидает запуска',preparing:'подготовка материалов',generating:'модель формирует ответ',completed:'завершена',failed:'ошибка',unknown:'состояние неизвестно'}[job.status]||job.status)+(job.error?' · '+job.error:'')));
+    if(model?.status==='missing'&&job.status==='not_started'){
+     const start=el('button','Запустить диагностику');const message=el('p','');
+     start.onclick=async()=>{
+      start.disabled=true;message.textContent='Отправка запроса…';
+      try{const response=await fetch('/api/diagnose',{method:'POST',headers:{'Content-Type':'application/json','X-Review-Token':data.review_token},body:JSON.stringify({incident_id:incident.incident_id})});
+       const result=await response.json();if(!response.ok)throw Error(result.error||'Ошибка запуска');message.textContent='Запуск принят';await refresh();
+      }catch(error){message.textContent=error.message;start.disabled=false;}
+     };box.append(start,message);
+    }
+   }
    $('incidents').append(box);
   }
  }catch(error){$('error').textContent=error.message;$('status').className='badge stale';$('status').textContent='Нет актуальных данных';}
@@ -204,11 +218,11 @@ $('refresh').onclick=refresh;refresh();setInterval(refresh,5000);
 </script></html>'''
 
 
-def handler(database, evidence_root, stale_seconds):
+def handler(database, evidence_root, stale_seconds, jobs=None):
     token = secrets.token_urlsafe(32)
     class Handler(BaseHTTPRequestHandler):
         def do_POST(self):
-            if self.path != '/api/assessment':
+            if self.path not in ('/api/assessment', '/api/diagnose'):
                 self.send_error(404)
                 return
             if not secrets.compare_digest(self.headers.get('X-Review-Token', ''), token):
@@ -228,14 +242,22 @@ def handler(database, evidence_root, stale_seconds):
                     if not db.execute('SELECT 1 FROM events WHERE incident_id=? AND event_type=?', (identifier, 'incident_opened')).fetchone():
                         raise ValueError('Инцидент не найден в базе')
                 incident = Path(evidence_root) / identifier
-                if load_model_review(incident, identifier)['status'] != 'available':
-                    raise ValueError('Ответ модели или материалы не прошли проверку')
-                if not all(isinstance(payload.get(k), str) for k in ('reviewer', 'verdict', 'note')):
-                    raise ValueError('Заполните поля оценки')
-                save_assessment(incident / 'model-review-001', payload['reviewer'], payload['verdict'], payload['note'])
+                if self.path == '/api/diagnose':
+                    if jobs is None:
+                        raise ValueError('Запуск модели не включён')
+                    jobs.start(identifier)
+                    status, result = 202, {'started': True}
+                else:
+                    if load_model_review(incident, identifier)['status'] != 'available':
+                        raise ValueError('Ответ модели или материалы не прошли проверку')
+                    if not all(isinstance(payload.get(k), str) for k in ('reviewer', 'verdict', 'note')):
+                        raise ValueError('Заполните поля оценки')
+                    save_assessment(incident / 'model-review-001', payload['reviewer'], payload['verdict'], payload['note'])
             except FileExistsError:
                 status, result = 409, {'error': 'Оценка уже сохранена. Перезапись запрещена.'}
-            except (ValueError, KeyError, TypeError):
+            except ValueError as exc:
+                status, result = 400, {'error': str(exc)}
+            except (KeyError, TypeError):
                 status, result = 400, {'error': 'Проверьте поля оценки и доступность материалов инцидента.'}
             except (OSError, sqlite3.Error):
                 status, result = 503, {'error': 'Не удалось сохранить оценку.'}
@@ -254,6 +276,11 @@ def handler(database, evidence_root, stale_seconds):
                 try:
                     data = snapshot(database, evidence_root, stale_seconds)
                     data['review_token'] = token
+                    data['model_enabled'] = jobs is not None
+                    for item in data['incidents']:
+                        identifier = item['incident_id']
+                        if len(identifier) == 32 and all(c in '0123456789abcdef' for c in identifier):
+                            item['model_job'] = job_state(Path(evidence_root) / identifier)
                     body, status = json.dumps(data, ensure_ascii=False).encode('utf-8'), 200
                 except (sqlite3.Error, OSError, ValueError, TypeError):
                     body, status = b'{"error":"monitor data unavailable"}', 503
@@ -276,12 +303,16 @@ def main():
     parser.add_argument('--evidence-dir', type=Path, required=True)
     parser.add_argument('--port', type=int, default=8081)
     parser.add_argument('--stale-seconds', type=float, default=30)
+    parser.add_argument('--model-python', type=Path, help='Enable model jobs using this virtualenv Python')
     args = parser.parse_args()
     if not args.database.is_file():
         parser.error('База мониторинга не найдена')
     if args.stale_seconds <= 0 or not 1 <= args.port <= 65535:
         parser.error('Некорректный порт или порог устаревания')
-    server = ThreadingHTTPServer(('127.0.0.1', args.port), handler(args.database, args.evidence_dir, args.stale_seconds))
+    if args.model_python and not args.model_python.is_file():
+        parser.error('Интерпретатор окружения модели не найден')
+    jobs = Jobs(args.evidence_dir, args.model_python) if args.model_python else None
+    server = ThreadingHTTPServer(('127.0.0.1', args.port), handler(args.database, args.evidence_dir, args.stale_seconds, jobs))
     print(f'Откройте http://localhost:{args.port} · Ctrl+C для остановки', flush=True)
     try:
         server.serve_forever()
