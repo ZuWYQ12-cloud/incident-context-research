@@ -69,17 +69,22 @@ body{margin:0;background:#f0f3f8;color:#182638;font:16px system-ui,sans-serif}ma
 <section class="card"><span id="status" class="badge">Загрузка…</span><p id="url"></p><p id="last" class="muted"></p><p id="note"></p></section>
 <section class="card"><h2>Инциденты</h2><p class="muted">Последние 50. Время показывается в часовом поясе браузера.</p><div id="incidents"></div></section>
 <section class="card"><h2>Последние проверки</h2><div class="scroll"><table><thead><tr><th>Время</th><th>HTTP</th><th>Результат</th></tr></thead><tbody id="checks"></tbody></table></div></section>
-<p class="muted">Страница только отображает данные. Монитор запускается отдельно. Обновление каждые 5 секунд.</p>
+<p class="muted">Просмотр материалов и сохранение оценки инженера. Монитор запускается отдельно. Обновление каждые 5 секунд.</p>
 </main><script>
 const $=id=>document.getElementById(id);
 const time=v=>v?new Date(v).toLocaleString('ru-RU'):'—';
 function el(tag,text){const e=document.createElement(tag);e.textContent=text;return e;}
+const editedForms=new Set();
+let editRevision=0;
 async function refresh(){
- if(document.activeElement?.closest('form'))return;
+ if(editedForms.size||document.activeElement?.closest('form'))return;
+ const revision=editRevision;
  try{
   const response=await fetch('/api/status',{cache:'no-store'});
   if(!response.ok)throw Error('Не удалось прочитать данные мониторинга');
-  const data=await response.json();$('error').textContent='';
+  const data=await response.json();
+  if(editedForms.size||revision!==editRevision||document.activeElement?.closest('form'))return;
+  $('error').textContent='';
   $('status').className='badge '+(data.stale?'stale':data.state);
   $('status').textContent=data.stale?'Данные устарели':({healthy:'Сервис доступен',incident:'Открыт инцидент',unknown:'Состояние уточняется'}[data.state]||data.state);
   $('url').textContent=data.url;
@@ -172,12 +177,18 @@ async function refresh(){
       }
       form.append(el('p','Если оценка подготовлена с ИИ-ассистентом, укажите это в комментарии. Сохранённая оценка не перезаписывается.'));
       const submit=el('button','Сохранить оценку');submit.type='submit';const message=el('p','');message.setAttribute('role','status');form.append(submit,message);
+      const protectDraft=()=>{
+       editedForms.add(form);editRevision++;
+       $('refresh-time').textContent='Обновление карточек приостановлено на время заполнения оценки.';
+      };
+      form.addEventListener('input',protectDraft);
+      form.addEventListener('change',protectDraft);
       form.onsubmit=async event=>{
-       event.preventDefault();submit.disabled=true;
+       event.preventDefault();protectDraft();submit.disabled=true;
        try{
         const response=await fetch('/api/assessment',{method:'POST',headers:{'Content-Type':'application/json','X-Review-Token':data.review_token},body:JSON.stringify({incident_id:incident.incident_id,reviewer:author.value,verdict:verdict.value,note:note.value})});
         const result=await response.json();if(!response.ok)throw Error(result.error||'Ошибка сохранения');
-        form.remove();await refresh();
+        editedForms.delete(form);editRevision++;form.remove();await refresh();
        }catch(error){message.textContent=error.message;submit.disabled=false;}
       };
       panel.append(form);
