@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.request import build_opener, HTTPRedirectHandler
+from notification_queue import initialize as initialize_outbox, enqueue
 
 
 def utc_now():
@@ -42,7 +43,9 @@ class Monitor:
         self.db = sqlite3.connect(database)
         self.db.row_factory = sqlite3.Row
         self.failures, self.successes = failures, successes
+        self.url = url
         with self.db:
+            initialize_outbox(self.db)
             self.db.execute('CREATE TABLE IF NOT EXISTS settings (id INTEGER PRIMARY KEY, value TEXT NOT NULL)')
             self.db.execute('''CREATE TABLE IF NOT EXISTS state (
                 id INTEGER PRIMARY KEY, status TEXT NOT NULL, bad INTEGER NOT NULL,
@@ -96,9 +99,10 @@ class Monitor:
             self.db.execute('''UPDATE state SET status=?,bad=?,good=?,first_bad=?,incident_id=? WHERE id=1''',
                             tuple(state[k] for k in ('status','bad','good','first_bad','incident_id')))
             if event:
-                self.db.execute('''INSERT INTO events
+                event_id = self.db.execute('''INSERT INTO events
                     (event_type,incident_id,confirmed_at,first_bad_at,check_id) VALUES (?,?,?,?,?)''',
-                    (event['event_type'],event['incident_id'],event['confirmed_at'],event['first_bad_at'],check_id))
+                    (event['event_type'],event['incident_id'],event['confirmed_at'],event['first_bad_at'],check_id)).lastrowid
+                enqueue(self.db, event_id, self.url, event, sample)
         return event
 
 
