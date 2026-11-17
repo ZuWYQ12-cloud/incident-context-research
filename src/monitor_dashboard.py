@@ -13,6 +13,7 @@ from incident_model_view import load_model_review
 from model_assessment import save_assessment, VERDICTS
 from incident_model_job import Jobs, job_state
 from notification_status import notification_status
+from runtime_control import write_ready
 
 
 def snapshot(database, evidence_root, stale_seconds=30):
@@ -318,6 +319,7 @@ def handler(database, evidence_root, stale_seconds, jobs=None):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--database', type=Path, required=True)
+    parser.add_argument('--ready-file', type=Path, help=argparse.SUPPRESS)
     parser.add_argument('--evidence-dir', type=Path, required=True)
     parser.add_argument('--port', type=int, default=8081)
     parser.add_argument('--stale-seconds', type=float, default=30)
@@ -333,6 +335,7 @@ def main():
     server = ThreadingHTTPServer(('127.0.0.1', args.port), handler(args.database, args.evidence_dir, args.stale_seconds, jobs))
     print(f'Откройте http://localhost:{args.port} · Ctrl+C для остановки', flush=True)
     try:
+        write_ready(args.ready_file)
         server.serve_forever()
     except KeyboardInterrupt:
         pass

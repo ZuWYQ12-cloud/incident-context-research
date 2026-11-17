@@ -10,6 +10,7 @@ from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import Request, build_opener, HTTPRedirectHandler
+from runtime_control import write_ready
 
 
 class DeliveryError(Exception):
@@ -120,6 +121,7 @@ def deliver_next(db, token, peer_id, send=vk_send, now=None):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--database', type=Path, required=True)
+    parser.add_argument('--ready-file', type=Path, help=argparse.SUPPRESS)
     parser.add_argument('--peer-id', type=int, required=True, help='Числовой ID вашего профиля VK')
     parser.add_argument('--send', action='store_true', help='Отправить ожидающие сообщения в VK')
     parser.add_argument('--rotate-token', action='store_true', help='Заменить привязанный токен без отправки; новый ключ должен быть от того же сообщества')
@@ -158,6 +160,7 @@ def main():
                 return
             setup(db, args.peer_id, token)
             print('Отправитель VK запущен. Ожидающие сообщения будут отправлены.', flush=True)
+            write_ready(args.ready_file)
             if args.retry_failed:
                 with db:
                     db.execute('UPDATE vk_delivery SET blocked=0,attempts=0,next_attempt=0 WHERE blocked=1')

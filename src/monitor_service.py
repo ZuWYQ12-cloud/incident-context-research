@@ -9,6 +9,7 @@ from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.request import build_opener, HTTPRedirectHandler
 from notification_queue import initialize as initialize_outbox, enqueue
+from runtime_control import acquire_lock, write_ready
 
 
 def utc_now():
@@ -110,6 +111,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--url', default='http://127.0.0.1:8000/health/ready')
     parser.add_argument('--database', type=Path, required=True)
+    parser.add_argument('--ready-file', type=Path, help=argparse.SUPPRESS)
     parser.add_argument('--interval', type=float, default=5)
     parser.add_argument('--timeout', type=float, default=3)
     parser.add_argument('--max-checks', type=int, default=0, help='0: until Ctrl+C')
@@ -129,9 +131,11 @@ def main():
     if not args.url.startswith(('http://', 'https://')):
         parser.error('Expected HTTP(S) URL')
     args.database.parent.mkdir(parents=True, exist_ok=True)
+    process_lock = acquire_lock(str(args.database.resolve()) + '.monitor.lock')
     monitor = Monitor(args.database, args.url)
     print('Мониторинг:', args.url, '\nБаза событий:', args.database, flush=True)
     try:
+        write_ready(args.ready_file)
         count = 0
         while True:
             sample = probe(args.url, args.timeout)
@@ -160,6 +164,7 @@ def main():
         print('\nМониторинг остановлен; данные сохранены.')
     finally:
         monitor.close()
+        process_lock.close()
 
 
 if __name__ == '__main__':
