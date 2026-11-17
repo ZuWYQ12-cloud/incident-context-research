@@ -6,7 +6,7 @@ from unittest.mock import Mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'src'))
 from notification_queue import initialize
-from send_vk_notifications import setup, deliver_next, DeliveryError
+from send_vk_notifications import setup, deliver_next, DeliveryError, rotate_token
 
 
 class VKTests(unittest.TestCase):
@@ -48,6 +48,18 @@ class VKTests(unittest.TestCase):
             setup(self.db, 456, 'test-token')
         with self.assertRaises(ValueError):
             setup(self.db, 123, 'different-token')
+
+    def test_rotation_preserves_history_and_retry_identifier(self):
+        deliver_next(self.db, 'test-token', 123, Mock(return_value=7), 100)
+        deliver_next(self.db, 'test-token', 123, Mock(side_effect=DeliveryError('network_error', True)), 101)
+        before = [tuple(r) for r in self.db.execute('SELECT * FROM vk_delivery ORDER BY notification_id')]
+        rotate_token(self.db, 123, 'replacement')
+        setup(self.db, 123, 'replacement')
+        self.assertEqual(before, [tuple(r) for r in self.db.execute('SELECT * FROM vk_delivery ORDER BY notification_id')])
+        self.assertEqual(self.db.execute("SELECT count(*) FROM notification_outbox WHERE status='sent'").fetchone()[0], 1)
+        with self.assertRaises(ValueError):
+            rotate_token(self.db, 456, 'other')
+        setup(self.db, 123, 'replacement')
 
 
 if __name__ == '__main__':

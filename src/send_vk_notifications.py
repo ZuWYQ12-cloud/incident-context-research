@@ -68,6 +68,18 @@ def setup(db, peer_id, token):
             message_id INTEGER, accepted_at REAL)''')
 
 
+def rotate_token(db, peer_id, token):
+    """Explicit local credential rotation; caller holds the sender lock."""
+    if not token.strip():
+        raise ValueError('Новый токен пуст')
+    with db:
+        old = db.execute('SELECT binding FROM vk_destination WHERE id=1').fetchone()
+        if not old or json.loads(old[0])[0] != peer_id:
+            raise ValueError('Замена токена требует существующую привязку к тому же получателю')
+        binding = json.dumps([peer_id, hashlib.sha256(token.encode()).hexdigest()])
+        db.execute('UPDATE vk_destination SET binding=? WHERE id=1', (binding,))
+
+
 def deliver_next(db, token, peer_id, send=vk_send, now=None):
     now = time.time() if now is None else now
     row = db.execute("SELECT * FROM notification_outbox WHERE status='pending' ORDER BY id LIMIT 1").fetchone()
@@ -110,9 +122,12 @@ def main():
     parser.add_argument('--database', type=Path, required=True)
     parser.add_argument('--peer-id', type=int, required=True, help='Числовой ID вашего профиля VK')
     parser.add_argument('--send', action='store_true', help='Отправить ожидающие сообщения в VK')
+    parser.add_argument('--rotate-token', action='store_true', help='Заменить привязанный токен без отправки; новый ключ должен быть от того же сообщества')
     parser.add_argument('--watch', action='store_true', help='Продолжать обработку очереди')
     parser.add_argument('--retry-failed', action='store_true', help='После исправления причины повторить заблокированные сообщения')
     args = parser.parse_args()
+    if args.rotate_token and (args.send or args.watch or args.retry_failed):
+        parser.error('--rotate-token выполняется отдельно от отправки')
     if not 0 < args.peer_id < 2000000000:
         parser.error('На этом этапе поддерживается личный диалог с пользователем VK')
     path = args.database.resolve()
@@ -120,10 +135,10 @@ def main():
         parser.error('База не найдена')
     if not args.send and (args.watch or args.retry_failed):
         parser.error('--watch и --retry-failed требуют --send')
-    db = sqlite3.connect(path.as_uri() + ('?mode=rw' if args.send else '?mode=ro'), uri=True)
+    db = sqlite3.connect(path.as_uri() + ('?mode=rw' if args.send or args.rotate_token else '?mode=ro'), uri=True)
     db.row_factory = sqlite3.Row
     try:
-        if not args.send:
+        if not args.send and not args.rotate_token:
             print(f'Предпросмотр. Получатель: {args.peer_id}. Отправки нет.')
             for row in db.execute("SELECT id,message FROM notification_outbox WHERE status='pending' ORDER BY id"):
                 print(f"\n--- {row['id']} ---\n{row['message']}")
@@ -137,7 +152,12 @@ def main():
                 fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
             except BlockingIOError:
                 raise ValueError('Отправитель для этой базы уже работает') from None
+            if args.rotate_token:
+                rotate_token(db, args.peer_id, token)
+                print('Привязка токена обновлена. Очередь и история сохранены. Отправки не было.')
+                return
             setup(db, args.peer_id, token)
+            print('Отправитель VK запущен. Ожидающие сообщения будут отправлены.', flush=True)
             if args.retry_failed:
                 with db:
                     db.execute('UPDATE vk_delivery SET blocked=0,attempts=0,next_attempt=0 WHERE blocked=1')
