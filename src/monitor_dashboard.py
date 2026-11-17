@@ -12,6 +12,7 @@ from incident_log_review import review_logs
 from incident_model_view import load_model_review
 from model_assessment import save_assessment, VERDICTS
 from incident_model_job import Jobs, job_state
+from notification_status import notification_status
 
 
 def snapshot(database, evidence_root, stale_seconds=30):
@@ -25,6 +26,7 @@ def snapshot(database, evidence_root, stale_seconds=30):
             o.first_bad_at, (SELECT MAX(r.confirmed_at) FROM events r
             WHERE r.incident_id=o.incident_id AND r.event_type='recovered') AS recovered_at
             FROM events o WHERE o.event_type='incident_opened' ORDER BY o.id DESC LIMIT 50''').fetchall()
+        notifications = notification_status(db, [row['incident_id'] for row in rows])
     last = dict(last) if last else None
     age = None
     if last:
@@ -33,6 +35,7 @@ def snapshot(database, evidence_root, stale_seconds=30):
     for row in rows:
         item = dict(row)
         identifier = item['incident_id']
+        item['notifications'] = notifications.get(identifier, [])
         item['evidence'] = None
         if len(identifier) == 32 and all(c in '0123456789abcdef' for c in identifier):
             path = Path(evidence_root) / identifier / 'manifest.json'
@@ -102,6 +105,21 @@ async function refresh(){
    box.append(el('summary',(incident.recovered_at?'Восстановлен':'Открыт')+' · '+time(incident.opened_at)));
    box.append(el('p','Идентификатор: '+incident.incident_id));
    box.append(el('p','Первый неуспешный замер: '+time(incident.first_bad_at)+' · Восстановление подтверждено: '+time(incident.recovered_at)));
+   const notices=document.createElement('section');notices.className='card';
+   notices.append(el('h3','Уведомления VK'));
+   if(!incident.notifications?.length)notices.append(el('p','Для этого инцидента уведомления не зарегистрированы. Старые события автоматически в очередь не добавляются.'));
+   for(const notice of incident.notifications||[]){
+    const labels={pending:'Ожидает отправки',sent:'Принято VK',blocked:'Отправка остановлена: ошибка',retry:'Ожидает повторной попытки',attempted:'Попытка начата; подтверждение VK не сохранено'};
+    const heading=el('p',(notice.event_type==='incident_opened'?'Сбой':'Восстановление')+' · '+(labels[notice.delivery_state]||'Состояние неизвестно'));
+    if(notice.delivery_state==='blocked')heading.className='error';
+    notices.append(heading);
+    notices.append(el('p','Создано: '+time(notice.created_at)+' · Начато попыток: '+notice.attempts));
+    if(notice.accepted_at)notices.append(el('p','Принято VK: '+time(notice.accepted_at)+' · ID сообщения: '+notice.message_id));
+    if(notice.last_error)notices.append(el('p','Код ошибки: '+notice.last_error));
+    if(notice.next_attempt)notices.append(el('p','Повтор возможен не ранее: '+time(notice.next_attempt)));
+   }
+   notices.append(el('p','Принятие сообщения VK не означает прочтение. Отправитель запускается отдельно; эта карточка не подтверждает, что он сейчас работает.'));
+   box.append(notices);
    const diagnosis=incident.diagnosis;
    if(diagnosis){
     const panel=document.createElement('section');panel.className='card';
