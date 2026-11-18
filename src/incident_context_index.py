@@ -4,6 +4,41 @@ import json
 import re
 from datetime import datetime
 
+
+def compact_index(index):
+    """Shared layouts with ordered rows; retain every entry without rounding."""
+    result = {key: value for key, value in index.items() if key != 'entries'}
+    result['encoding'] = 'shared_layouts_v2'
+    result['reading'] = ('Первое число каждой строки rows — индекс схемы в layouts (с нуля). '
+                         'Остальные значения соответствуют columns этой схемы по порядку. '
+                         'Поля common схемы относятся к этой строке. '
+                         'Все записи сохранены в исходном порядке; строки не исключались.')
+    layouts, rows = [], []
+    for entry in index['entries']:
+        common = {key: entry[key] for key in ('ref', 'time_basis', 'phase', 'connection')
+                  if key in entry}
+        columns = [key for key in entry if key not in common]
+        layout = {'common': common, 'columns': columns}
+        if layout not in layouts:
+            layouts.append(layout)
+        rows.append([layouts.index(layout)] + [entry[key] for key in columns])
+    result['layouts'], result['rows'] = layouts, rows
+    return result
+
+
+def expand_index(compact):
+    result = {key: value for key, value in compact.items()
+              if key not in ('encoding', 'reading', 'groups', 'layouts', 'rows')}
+    if compact['encoding'] == 'shared_layouts_v2':
+        result['entries'] = []
+        for row in compact['rows']:
+            layout = compact['layouts'][row[0]]
+            result['entries'].append(dict(layout['common'], **dict(zip(layout['columns'], row[1:]))))
+    else:
+        result['entries'] = [dict(group['common'], **dict(zip(group['columns'], row)))
+                             for group in compact['groups'] for row in group['rows']]
+    return result
+
 STAMP = r'\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?(?:Z|[+-]\d{2}:\d{2})'
 TIME = re.compile(r'^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})(?:\.(\d{1,9}))?(Z|[+-]\d{2}:\d{2})$')
 LINE = re.compile(r'^(?:[^|\r\n]+\|\s*)?(?P<stamp>' + STAMP + r')\s+(?P<message>.*)$')

@@ -5,7 +5,7 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 from incident_log_review import review_logs
-from incident_context_index import build_index
+from incident_context_index import build_index, compact_index, expand_index
 
 
 def digest(raw):
@@ -93,6 +93,19 @@ def prepare(incident, output, context_mode='timeline'):
         'Для ключевых утверждений укажи идентификаторы HTTP-1, API и другие из предоставленных наблюдений. '
         'Не придумывай события, инициатора или выполненные действия.\n'
     )
+    index_encoding = 'full'
+    if len(prompt) > 30000 and context_index is not None:
+        compact = compact_index(context_index)
+        if expand_index(compact) != context_index:
+            raise ValueError('Компактный указатель не прошёл проверку восстановления')
+        original_index_text = json.dumps(context_index, ensure_ascii=False, separators=(',', ':'))
+        compact_block = context_block.replace(original_index_text,
+            json.dumps(compact, ensure_ascii=False, separators=(',', ':')), 1)
+        prompt = prompt.replace(context_block, compact_block, 1)
+        index_encoding = compact['encoding']
+        # Only JSON whitespace changes; strings, logs and findings remain identical.
+        prompt = prompt.replace(json.dumps(payload, ensure_ascii=False, indent=2),
+            json.dumps(payload, ensure_ascii=False, separators=(',', ':')), 1)
     if len(prompt) > 30000:
         raise ValueError('Контекст слишком большой для первого запуска; нужен отдельный отбор. Запрос не создан.')
     encoded = prompt.encode('utf-8')
@@ -106,6 +119,7 @@ def prepare(incident, output, context_mode='timeline'):
               'preparer_sha256': digest(Path(__file__).read_bytes()),
               'extractor_sha256': digest(Path(__file__).with_name('extract_diagnostic_facts.py').read_bytes()),
               'context_mode': context_mode,
+              'context_index_encoding': index_encoding if context_index is not None else None,
               'context_index_sha256': digest((output / 'context-index.json').read_bytes()) if context_index is not None else None,
               'indexer_sha256': digest(Path(__file__).with_name('incident_context_index.py').read_bytes()),
               'model_output_semantically_verified': False}
