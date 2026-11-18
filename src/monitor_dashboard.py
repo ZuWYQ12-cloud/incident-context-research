@@ -180,6 +180,16 @@ async function refresh(){
      panel.append(el('p','Запрос подготовлен: '+time(model.prepared_at)+' · ретроспективный разбор'));
      if(model.token_limit_reached)panel.append(el('p','Достигнут лимит генерации: ответ может быть обрезан.'));
      const answer=el('pre',model.answer);answer.style.cssText='white-space:pre-wrap;overflow-wrap:anywhere;font:inherit;line-height:1.6';panel.append(answer);
+     const checks=model.automatic_checks;
+     if(checks){
+      panel.append(el('h4','Автоматические замечания к ответу'));
+      panel.append(el('p',({warnings:'Найдены фрагменты, требующие проверки.',no_matches:'Совпадений с проверяемыми шаблонами не найдено. Это не подтверждение правильности ответа.',not_checked:'Проверка не выполнена: '+(checks.reason||'формат не поддерживается')}[checks.status])));
+      for(const finding of checks.findings){
+       const quote=el('pre',finding.quote);quote.style.cssText='white-space:pre-wrap;overflow-wrap:anywhere;font:inherit';panel.append(quote);
+       panel.append(el('p',finding.reason));
+      }
+      panel.append(el('p',checks.limitations));
+     }
      panel.append(el('h4','Отметка инженера'));
      const assessment=model.assessment;
      if(assessment?.status==='current'){

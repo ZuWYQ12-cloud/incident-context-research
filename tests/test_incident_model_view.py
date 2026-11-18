@@ -45,6 +45,24 @@ class ModelViewTests(unittest.TestCase):
     def test_foreign_incident_hides_answer(self):
         self.assertEqual(load_model_review(self.incident, 'b'*32)['status'], 'invalid')
 
+    def test_automatic_warning_preserves_original_answer(self):
+        prompt = ('Header\n' + json.dumps({'observations': [
+            {'id': 'HTTP-1', 'http_status': None, 'error': 'Connection refused'}]})).encode()
+        record_path = self.root / 'preparation.json'
+        record = json.loads(record_path.read_text())
+        record['prompt_sha256'] = hashlib.sha256(prompt).hexdigest()
+        record_path.write_text(json.dumps(record), encoding='utf-8')
+        (self.root / 'prompt.txt').write_bytes(prompt)
+        (self.root / 'generation/prompt.txt').write_bytes(prompt)
+        answer = 'Подтверждено, что API не может связаться с БД.'
+        path = self.root / 'generation/answer.txt'
+        path.write_text(answer, encoding='utf-8')
+        before = path.read_bytes()
+        result = load_model_review(self.incident, 'a'*32)
+        self.assertEqual(result['automatic_checks']['status'], 'warnings')
+        self.assertEqual(result['answer'], answer)
+        self.assertEqual(path.read_bytes(), before)
+
 
 if __name__ == '__main__':
     unittest.main()

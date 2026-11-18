@@ -3,10 +3,15 @@ import hashlib
 import json
 from pathlib import Path
 from model_assessment import load_assessment
+from model_answer_checks import check_answer
 
 
 def load_model_review(incident_directory, incident_id):
-    root = Path(incident_directory) / 'model-review-001'
+    return load_review_directory(Path(incident_directory) / 'model-review-001', incident_id)
+
+
+def load_review_directory(root, incident_id):
+    root = Path(root)
     if not root.exists():
         return {'status': 'missing'}
     def read(path, limit=4 * 1024 * 1024):
@@ -45,13 +50,15 @@ def load_model_review(incident_directory, incident_id):
         if not answer.strip():
             raise ValueError('Ответ пуст')
         return {'status': 'available', 'answer': answer,
+                'automatic_checks': check_answer(answer, prompt.decode('utf-8')),
                 'assessment': load_assessment(root),
                 'prepared_at': record.get('prepared_at'),
                 'model': metadata.get('model'), 'seed': metadata.get('seed'),
                 'output_tokens': metadata.get('output_tokens'),
                 'token_limit_reached': metadata.get('token_limit_reached'),
                 'warning': 'Ответ модели требует проверки. Версии причин и ссылки могут быть ошибочными. '
-                           'Проверено соответствие запроса и снимка материалов; содержание ответа автоматически не проверено. '
+                           'Проверено соответствие запроса и снимка материалов; содержание ответа полностью не проверено. '
+                           'Ниже приведена ограниченная автоматическая проверка известных шаблонов ошибок. '
                            'Ответ показан из сохранённого файла, его подлинность не удостоверена.'}
     except (OSError, ValueError, KeyError, TypeError, AttributeError) as exc:
         return {'status': 'invalid', 'error': str(exc)}

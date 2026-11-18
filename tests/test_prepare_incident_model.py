@@ -48,6 +48,20 @@ class PrepareTests(unittest.TestCase):
             prepare(self.incident, self.root / 'review')
         self.assertFalse((self.root / 'review' / 'prompt.txt').exists())
 
+    def test_modes_preserve_same_evidence_and_old_run(self):
+        baseline = prepare(self.incident, self.root / 'baseline', 'baseline')
+        baseline_bytes = baseline.read_bytes()
+        timeline = prepare(self.incident, self.root / 'timeline', 'timeline')
+        before = json.loads((baseline.parent / 'preparation.json').read_text(encoding='utf-8'))
+        after = json.loads((timeline.parent / 'preparation.json').read_text(encoding='utf-8'))
+        self.assertEqual(before['source_sha256'], after['source_sha256'])
+        self.assertEqual(baseline.read_bytes(), baseline_bytes)
+        self.assertFalse((baseline.parent / 'context-index.json').exists())
+        index = timeline.parent / 'context-index.json'
+        self.assertEqual(after['context_index_sha256'], hashlib.sha256(index.read_bytes()).hexdigest())
+        self.assertIn('УКАЗАТЕЛЬ ВРЕМЕНИ И СОЕДИНЕНИЙ', timeline.read_text(encoding='utf-8'))
+        self.assertIn('unknown', index.read_text(encoding='utf-8'))
+
 
 if __name__ == '__main__':
     unittest.main()
