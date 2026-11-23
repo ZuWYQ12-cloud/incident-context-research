@@ -14,6 +14,40 @@ def prompt(extra=None):
 
 
 class AnswerChecksTests(unittest.TestCase):
+    def http_prompt(self, extra=None):
+        rows = [{'id': f'HTTP-{i}', 'url': 'http://localhost' + path, 'http_status': status}
+                for i, (path, status) in enumerate([
+                    ('/health/live', 200), ('/health/ready', 503), ('/tasks', 500)], 1)]
+        return 'Header\n' + json.dumps({'observations': rows + (extra or [])})
+
+    def test_c01_http_errors_have_exact_quotes_and_sources(self):
+        answer = ('Потеря доступа к таблице `/health/ready` и `/tasks` (HTTP-коды 503).\n'
+                  'Потеря доступа к `/health/live` (HTTP-код 200).')
+        findings = check_answer(answer, self.http_prompt())['findings']
+        self.assertEqual([f['code'] for f in findings],
+            ['possible_http_status_mismatch', 'possible_http_availability_mismatch'])
+        self.assertEqual([f['evidence_refs'] for f in findings], [['HTTP-3'], ['HTTP-1']])
+        for f in findings:
+            self.assertEqual(answer[f['start_char']:f['end_char']], f['quote'])
+
+    def test_correct_http_and_distinct_codes_are_not_flagged(self):
+        for answer in ('/tasks вернул HTTP 500.', '/health/live вернул HTTP 200.',
+                       '/health/ready вернул 503; /tasks вернул 500.',
+                       '/health/ready — 503, /tasks — 500.'):
+            self.assertEqual(check_answer(answer, self.http_prompt())['status'], 'no_matches')
+
+    def test_qualified_and_historical_http_claims_are_skipped(self):
+        for answer in ('Гипотеза: /tasks вернул HTTP 503.',
+                       'Проверить, недоступен ли /health/live.',
+                       'До сбоя /tasks вернул HTTP 200.',
+                       'Не подтверждено, что /tasks вернул 503.'):
+            self.assertEqual(check_answer(answer, self.http_prompt())['status'], 'no_matches')
+
+    def test_http_route_boundary_and_conflicting_observations(self):
+        self.assertEqual(check_answer('/tasks/archive вернул HTTP 503.', self.http_prompt())['status'], 'no_matches')
+        extra = [{'id': 'HTTP-4', 'url': 'http://localhost/tasks', 'http_status': 503}]
+        self.assertEqual(check_answer('/tasks вернул HTTP 200.', self.http_prompt(extra))['status'], 'no_matches')
+
     def test_observed_wrong_db_claims_are_flagged_with_exact_offsets(self):
         for answer in (
             'Подтверждено, что API не может связаться с БД (HTTP-ошибки Connection refused).',
