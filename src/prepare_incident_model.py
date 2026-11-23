@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from incident_log_review import review_logs
 from incident_context_index import build_index, compact_index, expand_index
+from select_incident_traceback import select_traceback
 
 
 def digest(raw):
@@ -106,6 +107,40 @@ def prepare(incident, output, context_mode='timeline'):
         # Only JSON whitespace changes; strings, logs and findings remain identical.
         prompt = prompt.replace(json.dumps(payload, ensure_ascii=False, indent=2),
             json.dumps(payload, ensure_ascii=False, separators=(',', ':')), 1)
+    selection = {}
+    if len(prompt) > 30000 and context_index is not None:
+        old_payload = json.dumps(payload, ensure_ascii=False, separators=(',', ':'))
+        for obs in observations:
+            if 'text' not in obs:
+                continue
+            selected, kept, omitted = select_traceback(obs['text'])
+            if omitted:
+                # Every rule quote must remain verbatim in the selected text.
+                for fact in payload['rule_findings']:
+                    for evidence in fact.get('evidence', []):
+                        if evidence['observation_id'] == obs['id'] and evidence['quote'] not in selected:
+                            raise ValueError('Отбор исключил цитату правила; запрос не создан')
+                selection[obs['id']] = {'kept_source_lines': kept, 'omitted_source_lines': omitted}
+                obs['text'] = selected
+        if selection:
+            payload['selection'] = {
+                'method': 'complete_traceback_indented_frames_v1',
+                'limitation': 'Из текста журналов исключены указанные строки кадров полного Python traceback. '
+                    'Они могут содержать полезные детали. Полные журналы сохранены в evidence. '
+                    'Номера kept_source_lines задают исходную строку для каждой строки выбранного текста. '
+                    'Смещения цитат rule_findings относятся к полным исходным журналам.',
+                'sources': selection}
+            new_index = build_index(manifest['trigger'], observations)
+            for entry in new_index['entries']:
+                if entry['ref'] in selection and 'line' in entry:
+                    entry['source_line'] = selection[entry['ref']]['kept_source_lines'][entry['line'] - 1]
+            new_compact = compact_index(new_index)
+            if expand_index(new_compact) != new_index:
+                raise ValueError('Указатель отбора не восстановлен')
+            prompt = prompt.replace(old_payload, json.dumps(payload, ensure_ascii=False, separators=(',', ':')), 1)
+            prompt = prompt.replace(json.dumps(compact, ensure_ascii=False, separators=(',', ':')),
+                                    json.dumps(new_compact, ensure_ascii=False, separators=(',', ':')), 1)
+            context_index = new_index
     if len(prompt) > 30000:
         raise ValueError('Контекст слишком большой для первого запуска; нужен отдельный отбор. Запрос не создан.')
     encoded = prompt.encode('utf-8')
@@ -119,6 +154,8 @@ def prepare(incident, output, context_mode='timeline'):
               'preparer_sha256': digest(Path(__file__).read_bytes()),
               'extractor_sha256': digest(Path(__file__).with_name('extract_diagnostic_facts.py').read_bytes()),
               'context_mode': context_mode,
+              'selection_method': 'complete_traceback_indented_frames_v1' if selection else None,
+              'selector_sha256': digest(Path(__file__).with_name('select_incident_traceback.py').read_bytes()),
               'context_index_encoding': index_encoding if context_index is not None else None,
               'context_index_sha256': digest((output / 'context-index.json').read_bytes()) if context_index is not None else None,
               'indexer_sha256': digest(Path(__file__).with_name('incident_context_index.py').read_bytes()),
